@@ -1,0 +1,13 @@
+server:
+  port: ${SERVER_PORT:8080}
+
+spring:
+  datasource:
+    url: ${DATASOURCE_URL:jdbc:postgresql://localhost:5432/postgres?user=postgres&password=password}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10  # Максимальное количество соединений в пуле
+      minimum-idle: 2        # Минимальное количество неиспользуемых соединений
+      idle-timeout: 30000    # Время ожидания в миллисекундах перед закрытием неиспользуемого соединения
+      connection-timeout: 30000  # Время ожидания в миллисекундах при получении соединения из пула
+      max-lifetime: 1800000   # Максимальное время жизни соединения в миллисекундах
