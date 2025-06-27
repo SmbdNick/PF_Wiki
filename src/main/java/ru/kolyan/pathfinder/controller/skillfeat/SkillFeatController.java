@@ -1,5 +1,6 @@
 package ru.kolyan.pathfinder.controller.skillfeat;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,14 +18,14 @@ import ru.kolyan.pathfinder.service.api.SkillFeatService;
 
 import java.util.UUID;
 
-@RequestMapping("/api/skill-feat")
+@RequestMapping("${api.prefix.public}/skill-feat")
 @RestController
 @RequiredArgsConstructor
 public class SkillFeatController {
     private final SkillFeatService skillFeatService;
 
     @PostMapping
-    public void create(@RequestBody CreateSkillFeatRequest request) {
+    public void create(@Valid @RequestBody CreateSkillFeatRequest request) {
         skillFeatService.create(request);
     }
 
@@ -39,8 +40,8 @@ public class SkillFeatController {
     }
 
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable UUID id){
-        skillFeatService.delete(id);
+    public void deleteById(@PathVariable UUID id){
+        skillFeatService.deleteById(id);
     }
 
     @PatchMapping("/{id}")

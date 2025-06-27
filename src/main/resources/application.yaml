@@ -1,7 +1,14 @@
 server:
   port: ${SERVER_PORT:8080}
 
+api:
+  prefix:
+    public: ${PREFIX_PUBLIC:/api/pf-wiki}
+
 spring:
+  jpa:
+    hibernate:
+      ddl-auto: update
   datasource:
     url: ${DATASOURCE_URL:jdbc:postgresql://localhost:5432/postgres?user=postgres&password=password}
     driver-class-name: org.postgresql.Driver

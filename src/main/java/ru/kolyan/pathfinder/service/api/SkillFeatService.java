@@ -11,6 +11,6 @@ public interface SkillFeatService {
     void create(CreateSkillFeatRequest request);
     GetByIdSkillFeatResponse getById(UUID id);
     GetAllSkillFeatResponse getAll();
-    void delete(UUID id);
+    void deleteById(UUID id);
     void update(UpdateByIdSkillFeatRequest request, UUID id);
 }
