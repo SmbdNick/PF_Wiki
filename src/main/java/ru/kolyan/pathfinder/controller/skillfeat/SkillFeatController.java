@@ -1,13 +1,11 @@
 package ru.kolyan.pathfinder.controller.skillfeat;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import ru.kolyan.pathfinder.controller.skillfeat.request.CreateSkillFeatRequest;
+import ru.kolyan.pathfinder.controller.skillfeat.request.DeleteByIdSkillFeatRequest;
+import ru.kolyan.pathfinder.controller.skillfeat.request.UpdateByIdSkillFeatRequest;
+import ru.kolyan.pathfinder.controller.skillfeat.response.GetAllSkillFeatResponse;
 import ru.kolyan.pathfinder.controller.skillfeat.response.GetByIdSkillFeatResponse;
 import ru.kolyan.pathfinder.service.api.SkillFeatService;
 
@@ -27,5 +25,20 @@ public class SkillFeatController {
     @GetMapping("/{id}")
     public GetByIdSkillFeatResponse getById(@PathVariable UUID id) {
         return skillFeatService.getById(id);
+    }
+
+    @GetMapping
+    public GetAllSkillFeatResponse getAll() {
+        return skillFeatService.getAll();
+    }
+
+    @DeleteMapping
+    public void delete(@RequestBody DeleteByIdSkillFeatRequest request){
+        skillFeatService.delete(request);
+    }
+
+    @PatchMapping
+    public void update(@RequestBody UpdateByIdSkillFeatRequest request){
+        skillFeatService.update(request);
     }
 }
