@@ -3,7 +3,6 @@ package ru.kolyan.pathfinder.service.impl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.kolyan.pathfinder.controller.skillfeat.request.CreateSkillFeatRequest;
-import ru.kolyan.pathfinder.controller.skillfeat.request.DeleteByIdSkillFeatRequest;
 import ru.kolyan.pathfinder.controller.skillfeat.request.UpdateByIdSkillFeatRequest;
 import ru.kolyan.pathfinder.controller.skillfeat.response.GetAllSkillFeatResponse;
 import ru.kolyan.pathfinder.controller.skillfeat.response.GetByIdSkillFeatResponse;
@@ -59,16 +58,13 @@ public class SkillFeatServiceImpl implements SkillFeatService {
     }
 
     @Override
-    public void delete(DeleteByIdSkillFeatRequest request) {
-        SkillFeat skillFeat = new SkillFeat();
-        skillFeat.setId(request.getId());
-
-        skillFeatRepository.deleteById(skillFeat.getId());
+    public void delete(UUID id) {
+        skillFeatRepository.deleteById(id);
     }
 
     @Override
-    public void update(UpdateByIdSkillFeatRequest request) {
-        SkillFeat skillFeat = skillFeatRepository.findById(request.getId())
+    public void update(UpdateByIdSkillFeatRequest request, UUID id) {
+        SkillFeat skillFeat = skillFeatRepository.findById(id)
                 .orElseThrow(NotFoundException::new);
 
         Optional.ofNullable(request.getName())
