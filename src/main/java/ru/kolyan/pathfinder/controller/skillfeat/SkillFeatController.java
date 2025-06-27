@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.kolyan.pathfinder.controller.skillfeat.request.CreateSkillFeatRequest;
@@ -19,7 +20,7 @@ public class SkillFeatController {
     private final SkillFeatService skillFeatService;
 
     @PostMapping
-    public void create(CreateSkillFeatRequest request) {
+    public void create(@RequestBody CreateSkillFeatRequest request) {
         skillFeatService.create(request);
     }
 
