@@ -29,7 +29,7 @@ public class SkillServiceImpl implements SkillService {
 
         try {
             skillRepository.save(skill);
-        } catch (DataIntegrityViolationException e){
+        } catch (DataIntegrityViolationException e) {
             throw new ConflictException("Скил с таким назаванием уже ест");
         }
     }
@@ -62,7 +62,7 @@ public class SkillServiceImpl implements SkillService {
 
     @Override
     public void deleteById(UUID id) {
-        if(!skillRepository.existsById(id)){
+        if (!skillRepository.existsById(id)) {
             throw new NotFoundException("Скила с таким ID нету");
         }
         skillRepository.deleteById(id);

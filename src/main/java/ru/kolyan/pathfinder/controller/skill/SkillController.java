@@ -25,27 +25,27 @@ public class SkillController {
     private final SkillService skillService;
 
     @PostMapping
-    public void create(@Valid @RequestBody CreateSkillRequest request){
+    public void create(@Valid @RequestBody CreateSkillRequest request) {
         skillService.create(request);
     }
 
     @GetMapping("/{id}")
-    public GetByIdSkillResponse getById(@PathVariable UUID id){
+    public GetByIdSkillResponse getById(@PathVariable UUID id) {
         return skillService.getById(id);
     }
 
     @GetMapping
-    public GetAllSkillResponse getAll(){
+    public GetAllSkillResponse getAll() {
         return skillService.getAll();
     }
 
     @DeleteMapping("/{id}")
-    public void deleteById(@PathVariable UUID id){
+    public void deleteById(@PathVariable UUID id) {
         skillService.deleteById(id);
     }
 
     @PatchMapping("/{id}")
-    public void update(@RequestBody UpdateByIdSkillRequest request, @PathVariable UUID id){
+    public void update(@RequestBody UpdateByIdSkillRequest request, @PathVariable UUID id) {
         skillService.update(request, id);
     }
 }

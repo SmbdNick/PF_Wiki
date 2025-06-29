@@ -30,7 +30,7 @@ public class SkillFeatServiceImpl implements SkillFeatService {
 
         try {
             skillFeatRepository.save(skillFeat);
-        } catch (DataIntegrityViolationException e){
+        } catch (DataIntegrityViolationException e) {
             throw new ConflictException("Скил Фит с таким именем уже ест");
         }
     }
@@ -65,7 +65,7 @@ public class SkillFeatServiceImpl implements SkillFeatService {
 
     @Override
     public void deleteById(UUID id) {
-        if(!skillFeatRepository.existsById(id)){
+        if (!skillFeatRepository.existsById(id)) {
             throw new NotFoundException("Скил Фита с таким ID нету");
         }
         skillFeatRepository.deleteById(id);

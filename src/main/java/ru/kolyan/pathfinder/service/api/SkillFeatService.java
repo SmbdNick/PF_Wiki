@@ -9,8 +9,12 @@ import java.util.UUID;
 
 public interface SkillFeatService {
     void create(CreateSkillFeatRequest request);
+
     GetByIdSkillFeatResponse getById(UUID id);
+
     GetAllSkillFeatResponse getAll();
+
     void deleteById(UUID id);
+
     void update(UpdateByIdSkillFeatRequest request, UUID id);
 }
