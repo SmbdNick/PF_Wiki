@@ -33,8 +33,6 @@ public class SkillFeatServiceImpl implements SkillFeatService {
         } catch (DataIntegrityViolationException e){
             throw new ConflictException("Скил Фит с таким именем уже ест");
         }
-
-
     }
 
     @Override
