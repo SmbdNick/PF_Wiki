@@ -1,4 +1,5 @@
 package ru.kolyan.pathfinder.model;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -14,12 +15,12 @@ import lombok.Setter;
 import java.util.UUID;
 
 @Entity
-@Table(name = "skills", uniqueConstraints = @UniqueConstraint(columnNames = {"name"}))
+@Table(name = "attributes", uniqueConstraints = @UniqueConstraint(columnNames = {"name"}))
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
-public class Skill {
+public class Attribute {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
