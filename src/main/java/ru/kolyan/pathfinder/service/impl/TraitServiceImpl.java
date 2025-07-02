@@ -1,5 +1,9 @@
 package ru.kolyan.pathfinder.service.impl;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -11,6 +15,8 @@ import ru.kolyan.pathfinder.exception.NotFoundException;
 import ru.kolyan.pathfinder.model.Trait;
 import ru.kolyan.pathfinder.repository.TraitRepository;
 import ru.kolyan.pathfinder.service.api.TraitService;
+import ru.kolyan.pathfinder.service.dto.GetTraitDto;
+import ru.kolyan.pathfinder.service.dto.GetTraitsFilterDto;
 
 import java.util.List;
 import java.util.Optional;
@@ -20,6 +26,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class TraitServiceImpl implements TraitService {
     private final TraitRepository traitRepository;
+    private final EntityManager entityManager;
 
     @Override
     public void create(CreateTraitRequest request) {
@@ -71,5 +78,25 @@ public class TraitServiceImpl implements TraitService {
         return GetAllTraitResponse.builder()
                 .content(content)
                 .build();
+    }
+
+    @Override
+    public List<GetTraitDto> getAllByFilter(GetTraitsFilterDto filter) {
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Trait> query = cb.createQuery(Trait.class);
+        Root<Trait> root = query.from(Trait.class);
+
+        query.multiselect(root.get("id"), root.get("name"), root.get("description"))
+                .where(root.get("id").in(filter.getTraitIdList()));
+        List<Trait> traits = entityManager.createQuery(query).getResultList();
+
+        return traits.stream()
+                .map(trait -> GetTraitDto.builder()
+                        .id(trait.getId())
+                        .name(trait.getName())
+                        .description(trait.getDescription())
+                        .build()
+                )
+                .toList();
     }
 }

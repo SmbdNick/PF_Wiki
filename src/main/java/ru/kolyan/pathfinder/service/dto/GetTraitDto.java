@@ -1,18 +1,16 @@
-package ru.kolyan.pathfinder.controller.skillfeat.response;
+package ru.kolyan.pathfinder.service.dto;
 
 import lombok.Builder;
 import lombok.Getter;
 import lombok.extern.jackson.Jacksonized;
 
-import java.util.List;
 import java.util.UUID;
 
 @Getter
 @Builder
 @Jacksonized
-public class GetByIdSkillFeatResponse {
+public class GetTraitDto {
     private UUID id;
     private String name;
     private String description;
-    private List<String> traitList;
 }

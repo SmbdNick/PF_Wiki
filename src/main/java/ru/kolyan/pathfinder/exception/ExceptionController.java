@@ -52,4 +52,14 @@ public class ExceptionController {
                 .errors(errors)
                 .build();
     }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler({BadRequestException.class})
+    @ResponseBody
+    public ErrorResponse handleBadRequest(BadRequestException e) {
+        log.error("BadRequest: {} {}", e.getMessage(), e.getStackTrace());
+        return ErrorResponse.builder()
+                .message(e.getMessage())
+                .build();
+    }
 }

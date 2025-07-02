@@ -10,7 +10,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import ru.kolyan.pathfinder.controller.skillfeat.request.AddTraitsRequest;
 import ru.kolyan.pathfinder.controller.skillfeat.request.CreateSkillFeatRequest;
+import ru.kolyan.pathfinder.controller.skillfeat.request.DeleteTraitsRequest;
 import ru.kolyan.pathfinder.controller.skillfeat.request.UpdateByIdSkillFeatRequest;
 import ru.kolyan.pathfinder.controller.skillfeat.response.GetAllSkillFeatResponse;
 import ru.kolyan.pathfinder.controller.skillfeat.response.GetByIdSkillFeatResponse;
@@ -47,5 +49,15 @@ public class SkillFeatController {
     @PatchMapping("/{id}")
     public void update(@RequestBody UpdateByIdSkillFeatRequest request, @PathVariable UUID id){
         skillFeatService.update(request, id);
+    }
+
+    @PostMapping("/{id}/add-traits")
+    public void addTraits(@RequestBody @Valid AddTraitsRequest request, @PathVariable UUID id){
+        skillFeatService.addTraits(id, request);
+    }
+
+    @DeleteMapping("/{id}/delete-traits")
+    public void deleteTraits(@PathVariable UUID id, @Valid DeleteTraitsRequest request){
+        skillFeatService.deleteTraits(id, request);
     }
 }
