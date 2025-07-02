@@ -1,4 +1,4 @@
-package ru.kolyan.pathfinder.controller.skillfeat.request;
+package ru.kolyan.pathfinder.controller.ancestry.request;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -10,6 +10,6 @@ import java.util.UUID;
 @Getter
 @Builder
 @Jacksonized
-public class DeleteTraitsRequest {
+public class DeleteAncestryTraitsRequest {
     private List<UUID> traitId;
 }

@@ -17,6 +17,7 @@ import ru.kolyan.pathfinder.repository.TraitRepository;
 import ru.kolyan.pathfinder.service.api.TraitService;
 import ru.kolyan.pathfinder.service.dto.GetTraitDto;
 import ru.kolyan.pathfinder.service.dto.GetTraitsFilterDto;
+import ru.kolyan.pathfinder.util.ErrorMsgConstants;
 
 import java.util.List;
 import java.util.Optional;
@@ -28,6 +29,8 @@ public class TraitServiceImpl implements TraitService {
     private final TraitRepository traitRepository;
     private final EntityManager entityManager;
 
+    private static final String ENTITY_TRAIT = "Трэйт";
+
     @Override
     public void create(CreateTraitRequest request) {
         Trait trait = new Trait();
@@ -38,19 +41,21 @@ public class TraitServiceImpl implements TraitService {
         try {
             traitRepository.save(trait);
         } catch (DataIntegrityViolationException e) {
-            throw new ConflictException("Трэйт с таким назаванием уже ест");
+            throw new ConflictException(ErrorMsgConstants.conflict(ENTITY_TRAIT, trait.getName()));
         }
     }
 
     @Override
     public void update(UpdateByIdTraitRequest request, UUID id) {
         Trait trait = traitRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Трэйта с таким ID нету"));
+                .orElseThrow(() -> new NotFoundException(ErrorMsgConstants.notFound(ENTITY_TRAIT, id)));
 
         Optional.ofNullable(request.getName())
+                .filter(s -> !s.trim().isEmpty())
                 .ifPresent(trait::setName);
 
         Optional.ofNullable(request.getDescription())
+                .filter(s -> !s.trim().isEmpty())
                 .ifPresent(trait::setDescription);
 
         traitRepository.save(trait);
@@ -59,7 +64,7 @@ public class TraitServiceImpl implements TraitService {
     @Override
     public void deleteById(UUID id) {
         if (!traitRepository.existsById(id)) {
-            throw new NotFoundException("Трэйта с таким ID нету");
+            throw new NotFoundException(ErrorMsgConstants.notFound(ENTITY_TRAIT, id));
         }
         traitRepository.deleteById(id);
     }

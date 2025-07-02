@@ -1,4 +1,4 @@
-package ru.kolyan.pathfinder.controller.skillfeat.request;
+package ru.kolyan.pathfinder.controller.ancestry.request;
 
 import jakarta.validation.constraints.NotEmpty;
 import lombok.Builder;
@@ -11,7 +11,7 @@ import java.util.UUID;
 @Getter
 @Builder
 @Jacksonized
-public class AddTraitsRequest {
+public class AddAncestryTraitsRequest {
     @NotEmpty(message = "Не пусто должно быть здесь, длять!")
     List<UUID> traitIdList;
 }
