@@ -10,8 +10,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import ru.kolyan.pathfinder.controller.attribute.request.CreateAttributeComboRequest;
 import ru.kolyan.pathfinder.controller.attribute.request.CreateAttributeRequest;
+import ru.kolyan.pathfinder.controller.attribute.request.UpdateByIdAttributeComboRequest;
 import ru.kolyan.pathfinder.controller.attribute.request.UpdateByIdAttributeRequest;
+import ru.kolyan.pathfinder.controller.attribute.response.GetAllAttributeComboResponse;
 import ru.kolyan.pathfinder.controller.attribute.response.GetAllAttributeResponse;
 import ru.kolyan.pathfinder.controller.attribute.response.GetByIdAttributeResponse;
 import ru.kolyan.pathfinder.service.api.AttributeService;
@@ -47,5 +50,25 @@ public class AttributeController {
     @PatchMapping("/{id}")
     public void update(@RequestBody UpdateByIdAttributeRequest request, @PathVariable UUID id) {
         attributeService.update(request, id);
+    }
+
+    @PostMapping("/create-combo")
+    public void createCombo(@RequestBody CreateAttributeComboRequest request) {
+        attributeService.createCombo(request);
+    }
+
+    @PatchMapping("/update-combo/{id}")
+    public void updateCombo(@RequestBody UpdateByIdAttributeComboRequest request, @PathVariable UUID id) {
+        attributeService.updateCombo(request, id);
+    }
+
+    @DeleteMapping("/delete-combo/{id}")
+    public void deleteByIdCombo(@PathVariable UUID id) {
+        attributeService.deleteComboById(id);
+    }
+
+    @GetMapping("/get-combo")
+    public GetAllAttributeComboResponse getAllCombo() {
+        return attributeService.getAllCombo();
     }
 }
