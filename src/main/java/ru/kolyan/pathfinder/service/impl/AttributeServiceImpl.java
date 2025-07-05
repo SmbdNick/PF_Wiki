@@ -3,13 +3,18 @@ package ru.kolyan.pathfinder.service.impl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+import ru.kolyan.pathfinder.controller.attribute.request.CreateAttributeComboRequest;
 import ru.kolyan.pathfinder.controller.attribute.request.CreateAttributeRequest;
+import ru.kolyan.pathfinder.controller.attribute.request.UpdateByIdAttributeComboRequest;
 import ru.kolyan.pathfinder.controller.attribute.request.UpdateByIdAttributeRequest;
+import ru.kolyan.pathfinder.controller.attribute.response.GetAllAttributeComboResponse;
 import ru.kolyan.pathfinder.controller.attribute.response.GetAllAttributeResponse;
 import ru.kolyan.pathfinder.controller.attribute.response.GetByIdAttributeResponse;
 import ru.kolyan.pathfinder.exception.ConflictException;
 import ru.kolyan.pathfinder.exception.NotFoundException;
 import ru.kolyan.pathfinder.model.Attribute;
+import ru.kolyan.pathfinder.model.AttributeCombo;
+import ru.kolyan.pathfinder.repository.AttributeComboRepository;
 import ru.kolyan.pathfinder.repository.AttributeRepository;
 import ru.kolyan.pathfinder.service.api.AttributeService;
 
@@ -21,6 +26,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class AttributeServiceImpl implements AttributeService {
     private final AttributeRepository attributeRepository;
+    private final AttributeComboRepository attributeComboRepository;
 
     @Override
     public void create(CreateAttributeRequest request) {
@@ -77,5 +83,57 @@ public class AttributeServiceImpl implements AttributeService {
                 .ifPresent(attribute::setName);
 
         attributeRepository.save(attribute);
+    }
+
+    @Override
+    public void createCombo(CreateAttributeComboRequest request) {
+        AttributeCombo attributeCombo = new AttributeCombo();
+        attributeCombo.setAttributeId1(request.getAttributeId1());
+        attributeCombo.setAttributeId2(request.getAttributeId2());
+        attributeCombo.setComboName(request.getComboName());
+
+        attributeComboRepository.save(attributeCombo);
+    }
+
+    @Override
+    public void updateCombo(UpdateByIdAttributeComboRequest request, UUID id) {
+        AttributeCombo attributeCombo = attributeComboRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Комбо Атрибутиков с таким ID нету"));
+
+        Optional.ofNullable(request.getAttributeId1())
+                .ifPresent(attributeCombo::setAttributeId1);
+
+        Optional.ofNullable(request.getAttributeId2())
+                .ifPresent(attributeCombo::setAttributeId2);
+
+        Optional.ofNullable(request.getComboName())
+                .ifPresent(attributeCombo::setComboName);
+
+        attributeComboRepository.save(attributeCombo);
+    }
+
+    @Override
+    public void deleteComboById(UUID id) {
+        if (!attributeComboRepository.existsById(id)) {
+            throw new NotFoundException("Комбо Атрибутиков с таким ID нету");
+        }
+
+        attributeComboRepository.deleteById(id);
+    }
+
+    @Override
+    public GetAllAttributeComboResponse getAllCombo() {
+        List<AttributeCombo> attributeComboList = attributeComboRepository.findAll();
+        List<GetAllAttributeComboResponse.AttributeCombo> content = attributeComboList.stream()
+                .map(attributeCombo -> GetAllAttributeComboResponse.AttributeCombo.builder()
+                        .attributeId1(attributeCombo.getAttributeId1())
+                        .attributeId2(attributeCombo.getAttributeId2())
+                        .comboName(attributeCombo.getComboName())
+                        .build())
+                .toList();
+
+        return GetAllAttributeComboResponse.builder()
+                .content(content)
+                .build();
     }
 }
