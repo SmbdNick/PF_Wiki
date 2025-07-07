@@ -4,9 +4,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.kolyan.pathfinder.controller.skillfeat.request.AddTraitsRequest;
+import ru.kolyan.pathfinder.controller.skillfeat.request.AddSkillFeatTraitsRequest;
 import ru.kolyan.pathfinder.controller.skillfeat.request.CreateSkillFeatRequest;
-import ru.kolyan.pathfinder.controller.skillfeat.request.DeleteTraitsRequest;
+import ru.kolyan.pathfinder.controller.skillfeat.request.DeleteSkillFeatTraitsRequest;
 import ru.kolyan.pathfinder.controller.skillfeat.request.UpdateByIdSkillFeatRequest;
 import ru.kolyan.pathfinder.controller.skillfeat.response.GetAllSkillFeatResponse;
 import ru.kolyan.pathfinder.controller.skillfeat.response.GetByIdSkillFeatResponse;
@@ -21,6 +21,7 @@ import ru.kolyan.pathfinder.service.api.SkillFeatService;
 import ru.kolyan.pathfinder.service.api.TraitService;
 import ru.kolyan.pathfinder.service.dto.GetTraitDto;
 import ru.kolyan.pathfinder.service.dto.GetTraitsFilterDto;
+import ru.kolyan.pathfinder.util.ErrorMsgConstants;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +35,8 @@ public class SkillFeatServiceImpl implements SkillFeatService {
     private final SkillFeatTraitRepository skillFeatTraitRepository;
     private final TraitService traitService;
 
-    private static final String SKILL_FEAT_NOT_FOUND_MSG = "Скил Фита с таким ID нету";
+    private static final String ENTITY_SKILL_FEAT = "Скил Фит";
+    private static final String ENTITY_TRAIT = "Трэйт";
 
     @Override
     public void create(CreateSkillFeatRequest request) {
@@ -45,14 +47,15 @@ public class SkillFeatServiceImpl implements SkillFeatService {
         try {
             skillFeatRepository.save(skillFeat);
         } catch (DataIntegrityViolationException e) {
-            throw new ConflictException("Скил Фит с таким именем уже ест");
+            throw new ConflictException(ErrorMsgConstants.conflict(ENTITY_SKILL_FEAT, skillFeat.getName()));
         }
     }
 
     @Override
+    @Transactional
     public GetByIdSkillFeatResponse getById(UUID id) {
         SkillFeat skillFeat = skillFeatRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException(SKILL_FEAT_NOT_FOUND_MSG));
+                .orElseThrow(() -> new NotFoundException(ErrorMsgConstants.notFound(ENTITY_SKILL_FEAT, id)));
 
         List<SkillFeatTrait> skillFeatTraitList = skillFeatTraitRepository.findAllBySkillFeatId(id);
         List<UUID> traitIds = skillFeatTraitList.stream()
@@ -90,7 +93,7 @@ public class SkillFeatServiceImpl implements SkillFeatService {
     @Override
     public void deleteById(UUID id) {
         if (!skillFeatRepository.existsById(id)) {
-            throw new NotFoundException(SKILL_FEAT_NOT_FOUND_MSG);
+            throw new NotFoundException(ErrorMsgConstants.notFound(ENTITY_SKILL_FEAT, id));
         }
         skillFeatRepository.deleteById(id);
     }
@@ -98,12 +101,14 @@ public class SkillFeatServiceImpl implements SkillFeatService {
     @Override
     public void update(UpdateByIdSkillFeatRequest request, UUID id) {
         SkillFeat skillFeat = skillFeatRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException(SKILL_FEAT_NOT_FOUND_MSG));
+                .orElseThrow(() -> new NotFoundException(ErrorMsgConstants.notFound(ENTITY_SKILL_FEAT, id)));
 
         Optional.ofNullable(request.getName())
+                .filter(s -> !s.trim().isEmpty())
                 .ifPresent(skillFeat::setName);
 
         Optional.ofNullable(request.getDescription())
+                .filter(s -> !s.trim().isEmpty())
                 .ifPresent(skillFeat::setDescription);
 
         skillFeatRepository.save(skillFeat);
@@ -111,9 +116,9 @@ public class SkillFeatServiceImpl implements SkillFeatService {
 
     @Transactional
     @Override
-    public void addTraits(UUID skillFeatId, AddTraitsRequest request) {
+    public void addTraits(UUID skillFeatId, AddSkillFeatTraitsRequest request) {
         SkillFeat skillFeat = skillFeatRepository.findById(skillFeatId)
-                .orElseThrow(() -> new NotFoundException(SKILL_FEAT_NOT_FOUND_MSG));
+                .orElseThrow(() -> new NotFoundException(ErrorMsgConstants.notFound(ENTITY_SKILL_FEAT, skillFeatId)));
 
         List<SkillFeatTrait> skillFeatTraitListToSave = new ArrayList<>();
 
@@ -130,12 +135,12 @@ public class SkillFeatServiceImpl implements SkillFeatService {
 
     @Transactional
     @Override
-    public void deleteTraits(UUID id, DeleteTraitsRequest request) {
+    public void deleteTraits(UUID id, DeleteSkillFeatTraitsRequest request) {
         SkillFeat skillFeat = skillFeatRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException(SKILL_FEAT_NOT_FOUND_MSG));
+                .orElseThrow(() -> new NotFoundException(ErrorMsgConstants.notFound(ENTITY_SKILL_FEAT, id)));
 
-        if (!skillFeatTraitRepository.existsBySkillFeatIdAndTraitIdIn(skillFeat.getId(), request.getTraitId())){
-            throw new BadRequestException("Такого трэйта в этом скил фите нема");
+        if (!skillFeatTraitRepository.existsBySkillFeatIdAndTraitIdIn(skillFeat.getId(), request.getTraitId())) {
+            throw new BadRequestException(ErrorMsgConstants.badRequest(ENTITY_TRAIT, ENTITY_SKILL_FEAT));
         }
         skillFeatTraitRepository.deleteAllBySkillFeatIdAndTraitIdIn(skillFeat.getId(), request.getTraitId());
     }

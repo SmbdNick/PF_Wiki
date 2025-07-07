@@ -12,6 +12,7 @@ import ru.kolyan.pathfinder.exception.NotFoundException;
 import ru.kolyan.pathfinder.model.Skill;
 import ru.kolyan.pathfinder.repository.SkillRepository;
 import ru.kolyan.pathfinder.service.api.SkillService;
+import ru.kolyan.pathfinder.util.ErrorMsgConstants;
 
 import java.util.List;
 import java.util.Optional;
@@ -22,6 +23,8 @@ import java.util.UUID;
 public class SkillServiceImpl implements SkillService {
     private final SkillRepository skillRepository;
 
+    private static final String ENTITY_SKILL = "Скил";
+
     @Override
     public void create(CreateSkillRequest request) {
         Skill skill = new Skill();
@@ -30,14 +33,14 @@ public class SkillServiceImpl implements SkillService {
         try {
             skillRepository.save(skill);
         } catch (DataIntegrityViolationException e) {
-            throw new ConflictException("Скил с таким назаванием уже ест");
+            throw new ConflictException(ErrorMsgConstants.conflict(ENTITY_SKILL, skill.getName()));
         }
     }
 
     @Override
     public GetByIdSkillResponse getById(UUID id) {
         Skill skill = skillRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Скила с таким ID нету"));
+                .orElseThrow(() -> new NotFoundException(ErrorMsgConstants.notFound(ENTITY_SKILL, id)));
 
         return GetByIdSkillResponse.builder()
                 .id(skill.getId())
@@ -63,7 +66,7 @@ public class SkillServiceImpl implements SkillService {
     @Override
     public void deleteById(UUID id) {
         if (!skillRepository.existsById(id)) {
-            throw new NotFoundException("Скила с таким ID нету");
+            throw new NotFoundException(ErrorMsgConstants.notFound(ENTITY_SKILL, id));
         }
         skillRepository.deleteById(id);
     }
@@ -71,9 +74,10 @@ public class SkillServiceImpl implements SkillService {
     @Override
     public void update(UpdateByIdSkillRequest request, UUID id) {
         Skill skill = skillRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Скила с таким ID нету"));
+                .orElseThrow(() -> new NotFoundException(ErrorMsgConstants.notFound(ENTITY_SKILL, id)));
 
         Optional.ofNullable(request.getName())
+                .filter(s -> !s.trim().isEmpty())
                 .ifPresent(skill::setName);
 
         skillRepository.save(skill);

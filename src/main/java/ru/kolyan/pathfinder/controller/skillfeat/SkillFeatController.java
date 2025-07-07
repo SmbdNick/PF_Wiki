@@ -10,9 +10,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import ru.kolyan.pathfinder.controller.skillfeat.request.AddTraitsRequest;
+import ru.kolyan.pathfinder.controller.skillfeat.request.AddSkillFeatTraitsRequest;
 import ru.kolyan.pathfinder.controller.skillfeat.request.CreateSkillFeatRequest;
-import ru.kolyan.pathfinder.controller.skillfeat.request.DeleteTraitsRequest;
+import ru.kolyan.pathfinder.controller.skillfeat.request.DeleteSkillFeatTraitsRequest;
 import ru.kolyan.pathfinder.controller.skillfeat.request.UpdateByIdSkillFeatRequest;
 import ru.kolyan.pathfinder.controller.skillfeat.response.GetAllSkillFeatResponse;
 import ru.kolyan.pathfinder.controller.skillfeat.response.GetByIdSkillFeatResponse;
@@ -42,22 +42,22 @@ public class SkillFeatController {
     }
 
     @DeleteMapping("/{id}")
-    public void deleteById(@PathVariable UUID id){
+    public void deleteById(@PathVariable UUID id) {
         skillFeatService.deleteById(id);
     }
 
     @PatchMapping("/{id}")
-    public void update(@RequestBody UpdateByIdSkillFeatRequest request, @PathVariable UUID id){
+    public void update(@RequestBody UpdateByIdSkillFeatRequest request, @PathVariable UUID id) {
         skillFeatService.update(request, id);
     }
 
-    @PostMapping("/{id}/add-traits")
-    public void addTraits(@RequestBody @Valid AddTraitsRequest request, @PathVariable UUID id){
+    @PostMapping("/{id}/traits")
+    public void addTraits(@RequestBody @Valid AddSkillFeatTraitsRequest request, @PathVariable UUID id) {
         skillFeatService.addTraits(id, request);
     }
 
-    @DeleteMapping("/{id}/delete-traits")
-    public void deleteTraits(@PathVariable UUID id, @Valid DeleteTraitsRequest request){
+    @DeleteMapping("/{id}/traits")
+    public void deleteTraits(@PathVariable UUID id, @Valid DeleteSkillFeatTraitsRequest request) {
         skillFeatService.deleteTraits(id, request);
     }
 }

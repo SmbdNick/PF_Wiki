@@ -1,8 +1,8 @@
 package ru.kolyan.pathfinder.service.api;
 
-import ru.kolyan.pathfinder.controller.skillfeat.request.AddTraitsRequest;
+import ru.kolyan.pathfinder.controller.skillfeat.request.AddSkillFeatTraitsRequest;
 import ru.kolyan.pathfinder.controller.skillfeat.request.CreateSkillFeatRequest;
-import ru.kolyan.pathfinder.controller.skillfeat.request.DeleteTraitsRequest;
+import ru.kolyan.pathfinder.controller.skillfeat.request.DeleteSkillFeatTraitsRequest;
 import ru.kolyan.pathfinder.controller.skillfeat.request.UpdateByIdSkillFeatRequest;
 import ru.kolyan.pathfinder.controller.skillfeat.response.GetAllSkillFeatResponse;
 import ru.kolyan.pathfinder.controller.skillfeat.response.GetByIdSkillFeatResponse;
@@ -20,7 +20,7 @@ public interface SkillFeatService {
 
     void update(UpdateByIdSkillFeatRequest request, UUID id);
 
-    void addTraits(UUID id, AddTraitsRequest request);
+    void addTraits(UUID id, AddSkillFeatTraitsRequest request);
 
-    void deleteTraits(UUID id, DeleteTraitsRequest request);
+    void deleteTraits(UUID id, DeleteSkillFeatTraitsRequest request);
 }
