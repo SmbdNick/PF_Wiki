@@ -1,4 +1,4 @@
-package ru.kolyan.pathfinder.controller.trait.response;
+package ru.kolyan.pathfinder.controller.lore.response;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -10,15 +10,14 @@ import java.util.UUID;
 @Getter
 @Builder
 @Jacksonized
-public class GetAllTraitResponse {
-    List<Trait> content;
+public class GetAllLoreResponse {
+    private List<Lore> content;
 
     @Getter
     @Builder
     @Jacksonized
-    public static class Trait {
+    public static class Lore {
         private UUID id;
         private String name;
-        private String description;
     }
 }

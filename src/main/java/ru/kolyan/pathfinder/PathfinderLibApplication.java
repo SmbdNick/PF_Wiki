@@ -6,8 +6,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class PathfinderLibApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(PathfinderLibApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(PathfinderLibApplication.class, args);
+    }
 
 }
