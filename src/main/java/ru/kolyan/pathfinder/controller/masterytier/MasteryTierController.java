@@ -34,17 +34,17 @@ public class MasteryTierController {
     }
 
     @GetMapping
-    public GetAllMasteryTierResponse getAll(){
+    public GetAllMasteryTierResponse getAll() {
         return masteryTierService.getAll();
     }
 
     @DeleteMapping("/{id}")
-    public void deleteById(@PathVariable UUID id){
+    public void deleteById(@PathVariable UUID id) {
         masteryTierService.deleteById(id);
     }
 
     @PatchMapping("/{id}")
-    public void update(@RequestBody UpdateByIdMasteryTierRequest request, @PathVariable UUID id){
+    public void update(@RequestBody UpdateByIdMasteryTierRequest request, @PathVariable UUID id) {
         masteryTierService.update(request, id);
     }
 }

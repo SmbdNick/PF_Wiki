@@ -16,7 +16,7 @@ public class GetAllMasteryTierResponse {
     @Getter
     @Builder
     @Jacksonized
-    public static class MasteryTier{
+    public static class MasteryTier {
         private UUID id;
         private String name;
     }
