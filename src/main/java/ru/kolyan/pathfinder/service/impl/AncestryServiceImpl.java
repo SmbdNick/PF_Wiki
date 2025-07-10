@@ -185,13 +185,6 @@ public class AncestryServiceImpl implements AncestryService {
         ancestryTraitRepository.saveAll(ancestryTraitListToSave);
     }
 
-    private String getComboName(UUID comboId) {
-        AtomicReference<String> comboName = new AtomicReference<>("");
-        attributeComboRepository.findById(comboId).ifPresent(combo -> comboName.set(combo.getComboName()));
-
-        return comboName.get();
-    }
-
     @Override
     @Transactional
     public void deleteTraits(UUID id, DeleteAncestryTraitsRequest request) {
@@ -232,5 +225,12 @@ public class AncestryServiceImpl implements AncestryService {
             throw new BadRequestException(ErrorMsgConstants.badRequest(ENTITY_LANGUAGE, ENTITY_ANCESTRY));
         }
         ancestryLanguageRepository.deleteAllByAncestryIdAndLanguageIdIn(ancestry.getId(), request.getLanguageIdList());
+    }
+
+    private String getComboName(UUID comboId) {
+        AtomicReference<String> comboName = new AtomicReference<>("");
+        attributeComboRepository.findById(comboId).ifPresent(combo -> comboName.set(combo.getComboName()));
+
+        return comboName.get();
     }
 }
