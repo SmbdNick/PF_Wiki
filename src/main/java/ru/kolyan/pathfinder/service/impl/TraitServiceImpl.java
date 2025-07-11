@@ -12,6 +12,7 @@ import ru.kolyan.pathfinder.controller.trait.request.UpdateByIdTraitRequest;
 import ru.kolyan.pathfinder.controller.trait.response.GetAllTraitResponse;
 import ru.kolyan.pathfinder.exception.ConflictException;
 import ru.kolyan.pathfinder.exception.NotFoundException;
+import ru.kolyan.pathfinder.mapper.TraitMapper;
 import ru.kolyan.pathfinder.model.Trait;
 import ru.kolyan.pathfinder.repository.TraitRepository;
 import ru.kolyan.pathfinder.service.api.TraitService;
@@ -28,15 +29,13 @@ import java.util.UUID;
 public class TraitServiceImpl implements TraitService {
     private final TraitRepository traitRepository;
     private final EntityManager entityManager;
+    private final TraitMapper traitMapper;
 
     private static final String ENTITY_TRAIT = "Трэйт";
 
     @Override
     public void create(CreateTraitRequest request) {
-        Trait trait = new Trait();
-
-        trait.setName(request.getName());
-        trait.setDescription(request.getDescription());
+        Trait trait = traitMapper.fromCreateDto(request);
 
         try {
             traitRepository.save(trait);
@@ -73,11 +72,7 @@ public class TraitServiceImpl implements TraitService {
     public GetAllTraitResponse getAll() {
         List<Trait> traitList = traitRepository.findAll();
         List<GetAllTraitResponse.Trait> content = traitList.stream()
-                .map(trait -> GetAllTraitResponse.Trait.builder()
-                        .id(trait.getId())
-                        .name(trait.getName())
-                        .description(trait.getDescription())
-                        .build())
+                .map(traitMapper::toGetAllContentDto)
                 .toList();
 
         return GetAllTraitResponse.builder()
@@ -96,12 +91,7 @@ public class TraitServiceImpl implements TraitService {
         List<Trait> traits = entityManager.createQuery(query).getResultList();
 
         return traits.stream()
-                .map(trait -> GetTraitDto.builder()
-                        .id(trait.getId())
-                        .name(trait.getName())
-                        .description(trait.getDescription())
-                        .build()
-                )
+                .map(traitMapper::toGetServiceDto)
                 .toList();
     }
 }
