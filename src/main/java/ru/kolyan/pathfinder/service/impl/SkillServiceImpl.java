@@ -9,6 +9,7 @@ import ru.kolyan.pathfinder.controller.skill.response.GetAllSkillResponse;
 import ru.kolyan.pathfinder.controller.skill.response.GetByIdSkillResponse;
 import ru.kolyan.pathfinder.exception.ConflictException;
 import ru.kolyan.pathfinder.exception.NotFoundException;
+import ru.kolyan.pathfinder.mapper.SkillMapper;
 import ru.kolyan.pathfinder.model.Skill;
 import ru.kolyan.pathfinder.repository.SkillRepository;
 import ru.kolyan.pathfinder.service.api.SkillService;
@@ -22,13 +23,13 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class SkillServiceImpl implements SkillService {
     private final SkillRepository skillRepository;
+    private final SkillMapper skillMapper;
 
     private static final String ENTITY_SKILL = "Скил";
 
     @Override
     public void create(CreateSkillRequest request) {
-        Skill skill = new Skill();
-        skill.setName(request.getName());
+        Skill skill = skillMapper.fromCreateDto(request);
 
         try {
             skillRepository.save(skill);
@@ -42,20 +43,14 @@ public class SkillServiceImpl implements SkillService {
         Skill skill = skillRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(ErrorMsgConstants.notFound(ENTITY_SKILL, id)));
 
-        return GetByIdSkillResponse.builder()
-                .id(skill.getId())
-                .name(skill.getName())
-                .build();
+        return skillMapper.toGetByIdDto(skill);
     }
 
     @Override
     public GetAllSkillResponse getAll() {
         List<Skill> skillList = skillRepository.findAll();
         List<GetAllSkillResponse.Skill> content = skillList.stream()
-                .map(skill -> GetAllSkillResponse.Skill.builder()
-                        .id(skill.getId())
-                        .name(skill.getName())
-                        .build())
+                .map(skillMapper::toGetAllContentDto)
                 .toList();
 
         return GetAllSkillResponse.builder()
