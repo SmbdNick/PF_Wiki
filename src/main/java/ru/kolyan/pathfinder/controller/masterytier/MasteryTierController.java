@@ -1,5 +1,6 @@
 package ru.kolyan.pathfinder.controller.masterytier;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,7 +25,7 @@ public class MasteryTierController {
     private final MasteryTierService masteryTierService;
 
     @PostMapping
-    public void create(@RequestBody CreateMasteryTierRequest request) {
+    public void create(@RequestBody @Valid CreateMasteryTierRequest request) {
         masteryTierService.create(request);
     }
 

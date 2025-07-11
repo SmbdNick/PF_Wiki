@@ -1,5 +1,6 @@
 package ru.kolyan.pathfinder.service.api;
 
+import ru.kolyan.pathfinder.controller.playerclass.request.AddClassMasteryRequest;
 import ru.kolyan.pathfinder.controller.playerclass.request.CreatePlayerClassRequest;
 import ru.kolyan.pathfinder.controller.playerclass.request.UpdateByIdPlayerClassRequest;
 import ru.kolyan.pathfinder.controller.playerclass.response.GetAllPlayerClassResponse;
@@ -17,4 +18,8 @@ public interface PlayerClassService {
     void deleteById(UUID id);
 
     void update(UpdateByIdPlayerClassRequest request, UUID id);
+
+    void addClassMastery(AddClassMasteryRequest request, UUID id);
+
+    void deleteClassMastery(UUID classMasteryId);
 }

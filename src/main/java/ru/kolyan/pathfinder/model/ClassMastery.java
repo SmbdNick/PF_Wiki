@@ -14,15 +14,18 @@ import lombok.Setter;
 import java.util.UUID;
 
 @Entity
-@Table(name = "mastery_tiers")
+@Table(name = "class_masteries")
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
-public class MasteryTier {
+public class ClassMastery {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
-    @Column(nullable = false, unique = true)
-    private String name;
+    @Column(nullable = false)
+    private UUID playerClassId;
+    @Column(nullable = false)
+    private UUID masteryTierId;
+    private String characteristic;
 }

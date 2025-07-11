@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import ru.kolyan.pathfinder.controller.playerclass.request.AddClassMasteryRequest;
 import ru.kolyan.pathfinder.controller.playerclass.request.CreatePlayerClassRequest;
 import ru.kolyan.pathfinder.controller.playerclass.request.UpdateByIdPlayerClassRequest;
 import ru.kolyan.pathfinder.controller.playerclass.response.GetAllPlayerClassResponse;
@@ -47,6 +48,16 @@ public class PlayerClassController {
     @PatchMapping("/{id}")
     public void update(@RequestBody UpdateByIdPlayerClassRequest request, @PathVariable UUID id) {
         playerClassService.update(request, id);
+    }
+
+    @PostMapping("/{id}/class-mastery")
+    public void addClassMastery(@RequestBody AddClassMasteryRequest request, @PathVariable UUID id) {
+        playerClassService.addClassMastery(request, id);
+    }
+
+    @DeleteMapping("/class-mastery/{id}")
+    public void deleteClassMastery(@PathVariable UUID id) {
+        playerClassService.deleteClassMastery(id);
     }
 }
 

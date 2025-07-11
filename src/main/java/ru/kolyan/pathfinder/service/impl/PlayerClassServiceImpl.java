@@ -3,16 +3,22 @@ package ru.kolyan.pathfinder.service.impl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import ru.kolyan.pathfinder.controller.playerclass.request.AddClassMasteryRequest;
 import ru.kolyan.pathfinder.controller.playerclass.request.CreatePlayerClassRequest;
 import ru.kolyan.pathfinder.controller.playerclass.request.UpdateByIdPlayerClassRequest;
 import ru.kolyan.pathfinder.controller.playerclass.response.GetAllPlayerClassResponse;
 import ru.kolyan.pathfinder.controller.playerclass.response.GetByIdPlayerClassResponse;
 import ru.kolyan.pathfinder.exception.ConflictException;
 import ru.kolyan.pathfinder.exception.NotFoundException;
+import ru.kolyan.pathfinder.model.ClassMastery;
 import ru.kolyan.pathfinder.model.PlayerClass;
 import ru.kolyan.pathfinder.repository.AttributeComboRepository;
+import ru.kolyan.pathfinder.repository.ClassMasteryRepository;
+import ru.kolyan.pathfinder.repository.MasteryTierRepository;
 import ru.kolyan.pathfinder.repository.PlayerClassRepository;
 import ru.kolyan.pathfinder.service.api.PlayerClassService;
+import ru.kolyan.pathfinder.service.dto.ClassMasteryDto;
 import ru.kolyan.pathfinder.util.ErrorMsgConstants;
 
 import java.util.List;
@@ -25,8 +31,11 @@ import java.util.concurrent.atomic.AtomicReference;
 public class PlayerClassServiceImpl implements PlayerClassService {
     private final PlayerClassRepository playerClassRepository;
     private final AttributeComboRepository attributeComboRepository;
+    private final ClassMasteryRepository classMasteryRepository;
+    private final MasteryTierRepository masteryTierRepository;
 
     private static final String ENTITY_PLAYER_CLASS = "Класс";
+    private static final String ENTITY_CLASS_MASTERY = "Мастерство Класса";
 
     @Override
     public void create(CreatePlayerClassRequest request) {
@@ -44,9 +53,19 @@ public class PlayerClassServiceImpl implements PlayerClassService {
     }
 
     @Override
+    @Transactional
     public GetByIdPlayerClassResponse getById(UUID id) {
         PlayerClass playerClass = playerClassRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(ErrorMsgConstants.notFound(ENTITY_PLAYER_CLASS, id)));
+
+        List<ClassMastery> classMasteryList = classMasteryRepository.findAllByPlayerClassId(id);
+
+        List<ClassMasteryDto> classMasteries = classMasteryList.stream()
+                .map(classMastery -> ClassMasteryDto.builder()
+                        .characteristic(classMastery.getCharacteristic())
+                        .masteryTierName(getMasteryTierName(classMastery.getMasteryTierId()))
+                        .build())
+                .toList();
 
         return GetByIdPlayerClassResponse.builder()
                 .id(playerClass.getId())
@@ -55,10 +74,12 @@ public class PlayerClassServiceImpl implements PlayerClassService {
                 .description(playerClass.getDescription())
                 .attributeComboId(playerClass.getAttributeComboId())
                 .attributeComboName(getComboName(playerClass.getAttributeComboId()))
+                .classMasteries(classMasteries)
                 .build();
     }
 
     @Override
+    @Transactional
     public GetAllPlayerClassResponse getAll() {
         List<PlayerClass> playerClassList = playerClassRepository.findAll();
 
@@ -108,10 +129,39 @@ public class PlayerClassServiceImpl implements PlayerClassService {
         playerClassRepository.save(playerClass);
     }
 
+    @Override
+    @Transactional
+    public void addClassMastery(AddClassMasteryRequest request, UUID id) {
+        PlayerClass playerClass = playerClassRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException(ErrorMsgConstants.notFound(ENTITY_PLAYER_CLASS, id)));
+
+        ClassMastery classMastery = new ClassMastery();
+        classMastery.setPlayerClassId(playerClass.getId());
+        classMastery.setMasteryTierId(request.getMasteryTierId());
+        classMastery.setCharacteristic(request.getCharacteristic());
+
+        classMasteryRepository.save(classMastery);
+    }
+
+    @Override
+    public void deleteClassMastery(UUID classMasteryId) {
+        if (!classMasteryRepository.existsById(classMasteryId)) {
+            throw new NotFoundException(ErrorMsgConstants.notFound(ENTITY_CLASS_MASTERY, classMasteryId));
+        }
+        classMasteryRepository.deleteById(classMasteryId);
+    }
+
     private String getComboName(UUID comboId) {
         AtomicReference<String> comboName = new AtomicReference<>("");
         attributeComboRepository.findById(comboId).ifPresent(combo -> comboName.set(combo.getComboName()));
 
         return comboName.get();
+    }
+
+    private String getMasteryTierName(UUID masteryTierId) {
+        AtomicReference<String> masteryTierName = new AtomicReference<>("");
+        masteryTierRepository.findById(masteryTierId).ifPresent(masteryTier -> masteryTierName.set(masteryTier.getName()));
+
+        return masteryTierName.get();
     }
 }
