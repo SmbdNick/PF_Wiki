@@ -13,6 +13,7 @@ import ru.kolyan.pathfinder.controller.skillfeat.response.GetByIdSkillFeatRespon
 import ru.kolyan.pathfinder.exception.BadRequestException;
 import ru.kolyan.pathfinder.exception.ConflictException;
 import ru.kolyan.pathfinder.exception.NotFoundException;
+import ru.kolyan.pathfinder.mapper.SkillFeatMapper;
 import ru.kolyan.pathfinder.model.SkillFeat;
 import ru.kolyan.pathfinder.model.SkillFeatTrait;
 import ru.kolyan.pathfinder.repository.SkillFeatRepository;
@@ -23,7 +24,6 @@ import ru.kolyan.pathfinder.service.dto.GetTraitDto;
 import ru.kolyan.pathfinder.service.dto.GetTraitsFilterDto;
 import ru.kolyan.pathfinder.util.ErrorMsgConstants;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -34,15 +34,14 @@ public class SkillFeatServiceImpl implements SkillFeatService {
     private final SkillFeatRepository skillFeatRepository;
     private final SkillFeatTraitRepository skillFeatTraitRepository;
     private final TraitService traitService;
+    private final SkillFeatMapper skillFeatMapper;
 
     private static final String ENTITY_SKILL_FEAT = "Скил Фит";
     private static final String ENTITY_TRAIT = "Трэйт";
 
     @Override
     public void create(CreateSkillFeatRequest request) {
-        SkillFeat skillFeat = new SkillFeat();
-        skillFeat.setName(request.getName());
-        skillFeat.setDescription(request.getDescription());
+        SkillFeat skillFeat = skillFeatMapper.fromCreateDto(request);
 
         try {
             skillFeatRepository.save(skillFeat);
@@ -66,23 +65,14 @@ public class SkillFeatServiceImpl implements SkillFeatService {
                 .map(GetTraitDto::getName)
                 .toList();
 
-        return GetByIdSkillFeatResponse.builder()
-                .id(skillFeat.getId())
-                .name(skillFeat.getName())
-                .description(skillFeat.getDescription())
-                .traitList(traits)
-                .build();
+        return skillFeatMapper.toGetByIdDto(skillFeat, traits);
     }
 
     @Override
     public GetAllSkillFeatResponse getAll() {
         List<SkillFeat> skillFeatList = skillFeatRepository.findAll();
         List<GetAllSkillFeatResponse.SkillFeat> content = skillFeatList.stream()
-                .map(skillFeat -> GetAllSkillFeatResponse.SkillFeat.builder()
-                        .id(skillFeat.getId())
-                        .name(skillFeat.getName())
-                        .description(skillFeat.getDescription())
-                        .build())
+                .map(skillFeatMapper::toGetAllContentDto)
                 .toList();
 
         return GetAllSkillFeatResponse.builder()
@@ -120,15 +110,7 @@ public class SkillFeatServiceImpl implements SkillFeatService {
         SkillFeat skillFeat = skillFeatRepository.findById(skillFeatId)
                 .orElseThrow(() -> new NotFoundException(ErrorMsgConstants.notFound(ENTITY_SKILL_FEAT, skillFeatId)));
 
-        List<SkillFeatTrait> skillFeatTraitListToSave = new ArrayList<>();
-
-        request.getTraitIdList().forEach(traitId -> {
-            SkillFeatTrait skillFeatTrait = new SkillFeatTrait();
-            skillFeatTrait.setTraitId(traitId);
-            skillFeatTrait.setSkillFeatId(skillFeat.getId());
-
-            skillFeatTraitListToSave.add(skillFeatTrait);
-        });
+        List<SkillFeatTrait> skillFeatTraitListToSave = skillFeatMapper.fromAddTraitsDto(request, skillFeat);
 
         skillFeatTraitRepository.saveAll(skillFeatTraitListToSave);
     }
