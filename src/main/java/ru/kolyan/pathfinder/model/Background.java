@@ -6,7 +6,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,15 +14,25 @@ import lombok.Setter;
 import java.util.UUID;
 
 @Entity
-@Table(name = "skills", uniqueConstraints = @UniqueConstraint(columnNames = {"name"}))
-@AllArgsConstructor
+@Table(name = "backgrounds")
 @NoArgsConstructor
+@AllArgsConstructor
 @Getter
 @Setter
-public class Skill {
+public class Background {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
-    @Column(unique = true, nullable = false)
+    @Column(nullable = false, unique = true)
     private String name;
+    @Column(columnDefinition = "TEXT")
+    private String description;
+    @Column(nullable = false)
+    private UUID skillFeatId;
+    @Column(nullable = false)
+    private UUID skillId;
+    @Column(nullable = false)
+    private UUID loreId;
+    @Column(nullable = false)
+    private UUID attributeComboId;
 }

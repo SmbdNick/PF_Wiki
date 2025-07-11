@@ -16,7 +16,7 @@ public class ErrorResponse {
     @Getter
     @Builder
     @Jacksonized
-    public static class Error{
+    public static class Error {
         private String code;
         private String message;
     }

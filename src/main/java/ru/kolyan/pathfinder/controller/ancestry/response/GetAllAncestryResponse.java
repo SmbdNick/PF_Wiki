@@ -16,7 +16,7 @@ public class GetAllAncestryResponse {
     @Getter
     @Builder
     @Jacksonized
-    public static class Ancestry{
+    public static class Ancestry {
         private UUID id;
         private String name;
         private Integer hp;
