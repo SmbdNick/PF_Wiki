@@ -9,6 +9,7 @@ import ru.kolyan.pathfinder.controller.lore.response.GetAllLoreResponse;
 import ru.kolyan.pathfinder.controller.lore.response.GetByIdLoreResponse;
 import ru.kolyan.pathfinder.exception.ConflictException;
 import ru.kolyan.pathfinder.exception.NotFoundException;
+import ru.kolyan.pathfinder.mapper.LoreMapper;
 import ru.kolyan.pathfinder.model.Lore;
 import ru.kolyan.pathfinder.repository.LoreRepository;
 import ru.kolyan.pathfinder.service.api.LoreService;
@@ -22,12 +23,13 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class LoreServiceImpl implements LoreService {
     private final LoreRepository loreRepository;
+    private final LoreMapper loreMapper;
+
     private static final String ENTITY_LORE = "Знание";
 
     @Override
     public void create(CreateLoreRequest request) {
-        Lore lore = new Lore();
-        lore.setName(request.getName());
+        Lore lore = loreMapper.fromCreateDto(request);
 
         try {
             loreRepository.save(lore);
@@ -41,20 +43,14 @@ public class LoreServiceImpl implements LoreService {
         Lore lore = loreRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(ErrorMsgConstants.notFound(ENTITY_LORE, id)));
 
-        return GetByIdLoreResponse.builder()
-                .id(lore.getId())
-                .name(lore.getName())
-                .build();
+        return loreMapper.toGetByIdDto(lore);
     }
 
     @Override
     public GetAllLoreResponse getAll() {
         List<Lore> loreList = loreRepository.findAll();
         List<GetAllLoreResponse.Lore> content = loreList.stream()
-                .map(lore -> GetAllLoreResponse.Lore.builder()
-                        .id(lore.getId())
-                        .name(lore.getName())
-                        .build())
+                .map(loreMapper::toGetAllContentDto)
                 .toList();
 
         return GetAllLoreResponse.builder()
