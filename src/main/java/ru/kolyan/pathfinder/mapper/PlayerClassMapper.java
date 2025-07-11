@@ -1,7 +1,9 @@
 package ru.kolyan.pathfinder.mapper;
 
 import org.springframework.stereotype.Component;
+import ru.kolyan.pathfinder.controller.playerclass.request.AddClassMasteryRequest;
 import ru.kolyan.pathfinder.controller.playerclass.request.CreatePlayerClassRequest;
+import ru.kolyan.pathfinder.controller.playerclass.response.GetAllPlayerClassResponse;
 import ru.kolyan.pathfinder.controller.playerclass.response.GetByIdPlayerClassResponse;
 import ru.kolyan.pathfinder.model.ClassMastery;
 import ru.kolyan.pathfinder.model.PlayerClass;
@@ -11,7 +13,7 @@ import java.util.List;
 
 @Component
 public class PlayerClassMapper {
-    public PlayerClass fromCreateDto (CreatePlayerClassRequest request) {
+    public PlayerClass fromCreateDto(CreatePlayerClassRequest request) {
         PlayerClass playerClass = new PlayerClass();
         playerClass.setName(request.getName());
         playerClass.setDescription(request.getDescription());
@@ -21,7 +23,7 @@ public class PlayerClassMapper {
         return playerClass;
     }
 
-    public GetByIdPlayerClassResponse toGetByIdDto (PlayerClass playerClass, String attributeComboName, List<ClassMasteryDto> classMasteries) {
+    public GetByIdPlayerClassResponse toGetByIdDto(PlayerClass playerClass, String attributeComboName, List<ClassMasteryDto> classMasteries) {
         return GetByIdPlayerClassResponse.builder()
                 .id(playerClass.getId())
                 .name(playerClass.getName())
@@ -45,5 +47,25 @@ public class PlayerClassMapper {
                 .characteristic(classMastery.getCharacteristic())
                 .masteryTierName(masteryTierName)
                 .build();
+    }
+
+    public GetAllPlayerClassResponse.PlayerClass toGetAllContentDto(PlayerClass playerClass, String attributeComboName) {
+        return GetAllPlayerClassResponse.PlayerClass.builder()
+                .id(playerClass.getId())
+                .name(playerClass.getName())
+                .hpPerLvl(playerClass.getHpPerLvl())
+                .description(playerClass.getDescription())
+                .attributeComboId(playerClass.getAttributeComboId())
+                .attributeComboName(attributeComboName)
+                .build();
+    }
+
+    public ClassMastery fromAddDtoClassMastery(AddClassMasteryRequest request, PlayerClass playerClass) {
+        ClassMastery classMastery = new ClassMastery();
+        classMastery.setPlayerClassId(playerClass.getId());
+        classMastery.setMasteryTierId(request.getMasteryTierId());
+        classMastery.setCharacteristic(request.getCharacteristic());
+
+        return classMastery;
     }
 }

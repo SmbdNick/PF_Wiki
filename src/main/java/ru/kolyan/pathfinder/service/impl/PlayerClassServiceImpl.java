@@ -70,14 +70,7 @@ public class PlayerClassServiceImpl implements PlayerClassService {
         List<PlayerClass> playerClassList = playerClassRepository.findAll();
 
         List<GetAllPlayerClassResponse.PlayerClass> content = playerClassList.stream()
-                .map(playerClass -> GetAllPlayerClassResponse.PlayerClass.builder()
-                        .id(playerClass.getId())
-                        .name(playerClass.getName())
-                        .hpPerLvl(playerClass.getHpPerLvl())
-                        .description(playerClass.getDescription())
-                        .attributeComboId(playerClass.getAttributeComboId())
-                        .attributeComboName(getComboName(playerClass.getAttributeComboId()))
-                        .build())
+                .map(playerClass -> playerClassMapper.toGetAllContentDto(playerClass, getComboName(playerClass.getAttributeComboId())))
                 .toList();
 
         return GetAllPlayerClassResponse.builder()
@@ -121,12 +114,7 @@ public class PlayerClassServiceImpl implements PlayerClassService {
         PlayerClass playerClass = playerClassRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(ErrorMsgConstants.notFound(ENTITY_PLAYER_CLASS, id)));
 
-        ClassMastery classMastery = new ClassMastery();
-        classMastery.setPlayerClassId(playerClass.getId());
-        classMastery.setMasteryTierId(request.getMasteryTierId());
-        classMastery.setCharacteristic(request.getCharacteristic());
-
-        classMasteryRepository.save(classMastery);
+        classMasteryRepository.save(playerClassMapper.fromAddDtoClassMastery(request, playerClass));
     }
 
     @Override
