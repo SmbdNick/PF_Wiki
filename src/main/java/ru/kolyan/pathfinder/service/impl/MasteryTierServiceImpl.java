@@ -9,6 +9,7 @@ import ru.kolyan.pathfinder.controller.masterytier.response.GetAllMasteryTierRes
 import ru.kolyan.pathfinder.controller.masterytier.response.GetByIdMasteryTierResponse;
 import ru.kolyan.pathfinder.exception.ConflictException;
 import ru.kolyan.pathfinder.exception.NotFoundException;
+import ru.kolyan.pathfinder.mapper.MasteryTierMapper;
 import ru.kolyan.pathfinder.model.MasteryTier;
 import ru.kolyan.pathfinder.repository.MasteryTierRepository;
 import ru.kolyan.pathfinder.service.api.MasteryTierService;
@@ -22,13 +23,13 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class MasteryTierServiceImpl implements MasteryTierService {
     private final MasteryTierRepository masteryTierRepository;
+    private final MasteryTierMapper masteryTierMapper;
 
     private static final String ENTITY_MASTERY_TIER = "Уровень Мастерства";
 
     @Override
     public void create(CreateMasteryTierRequest request) {
-        MasteryTier masteryTier = new MasteryTier();
-        masteryTier.setName(request.getName());
+        MasteryTier masteryTier = masteryTierMapper.fromCreateDto(request);
 
         try {
             masteryTierRepository.save(masteryTier);
@@ -42,20 +43,14 @@ public class MasteryTierServiceImpl implements MasteryTierService {
         MasteryTier masteryTier = masteryTierRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(ErrorMsgConstants.notFound(ENTITY_MASTERY_TIER, id)));
 
-        return GetByIdMasteryTierResponse.builder()
-                .id(masteryTier.getId())
-                .name(masteryTier.getName())
-                .build();
+        return masteryTierMapper.toGetByIdDto(masteryTier);
     }
 
     @Override
     public GetAllMasteryTierResponse getAll() {
         List<MasteryTier> masteryTierList = masteryTierRepository.findAll();
         List<GetAllMasteryTierResponse.MasteryTier> content = masteryTierList.stream()
-                .map(masteryTier -> GetAllMasteryTierResponse.MasteryTier.builder()
-                        .id(masteryTier.getId())
-                        .name(masteryTier.getName())
-                        .build())
+                .map(masteryTierMapper::toGetAllContentDto)
                 .toList();
 
         return GetAllMasteryTierResponse.builder()
