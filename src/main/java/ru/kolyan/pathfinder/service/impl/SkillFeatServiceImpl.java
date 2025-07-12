@@ -101,7 +101,11 @@ public class SkillFeatServiceImpl implements SkillFeatService {
                 .filter(s -> !s.trim().isEmpty())
                 .ifPresent(skillFeat::setDescription);
 
-        skillFeatRepository.save(skillFeat);
+        try {
+            skillFeatRepository.save(skillFeat);
+        } catch (DataIntegrityViolationException e) {
+            throw new ConflictException(ErrorMsgConstants.conflict(ENTITY_SKILL_FEAT, skillFeat.getName()));
+        }
     }
 
     @Transactional

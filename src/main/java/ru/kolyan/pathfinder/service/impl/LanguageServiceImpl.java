@@ -82,7 +82,11 @@ public class LanguageServiceImpl implements LanguageService {
                 .filter(s -> !s.trim().isEmpty())
                 .ifPresent(language::setName);
 
-        languageRepository.save(language);
+        try {
+            languageRepository.save(language);
+        } catch (DataIntegrityViolationException e) {
+            throw new ConflictException(ErrorMsgConstants.conflict(ENTITY_LANGUAGE, language.getName()));
+        }
     }
 
     @Override

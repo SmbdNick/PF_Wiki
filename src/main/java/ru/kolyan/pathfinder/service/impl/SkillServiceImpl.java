@@ -75,6 +75,10 @@ public class SkillServiceImpl implements SkillService {
                 .filter(s -> !s.trim().isEmpty())
                 .ifPresent(skill::setName);
 
-        skillRepository.save(skill);
+        try {
+            skillRepository.save(skill);
+        } catch (DataIntegrityViolationException e) {
+            throw new ConflictException(ErrorMsgConstants.conflict(ENTITY_SKILL, skill.getName()));
+        }
     }
 }

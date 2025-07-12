@@ -75,6 +75,10 @@ public class MasteryTierServiceImpl implements MasteryTierService {
                 .filter(s -> !s.trim().isEmpty())
                 .ifPresent(masteryTier::setName);
 
-        masteryTierRepository.save(masteryTier);
+        try {
+            masteryTierRepository.save(masteryTier);
+        } catch (DataIntegrityViolationException e) {
+            throw new ConflictException(ErrorMsgConstants.conflict(ENTITY_MASTERY_TIER, masteryTier.getName()));
+        }
     }
 }

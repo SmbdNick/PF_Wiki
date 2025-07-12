@@ -81,8 +81,11 @@ public class AttributeServiceImpl implements AttributeService {
         Optional.ofNullable(request.getName())
                 .filter(s -> !s.trim().isEmpty())
                 .ifPresent(attribute::setName);
-
-        attributeRepository.save(attribute);
+        try {
+            attributeRepository.save(attribute);
+        } catch (DataIntegrityViolationException e) {
+            throw new ConflictException(ErrorMsgConstants.conflict(ENTITY_ATTRIBUTE, attribute.getName()));
+        }
     }
 
     @Override
@@ -111,7 +114,11 @@ public class AttributeServiceImpl implements AttributeService {
                 .filter(s -> !s.trim().isEmpty())
                 .ifPresent(attributeCombo::setComboName);
 
-        attributeComboRepository.save(attributeCombo);
+        try {
+            attributeComboRepository.save(attributeCombo);
+        } catch (DataIntegrityViolationException e) {
+            throw new ConflictException(ErrorMsgConstants.conflict(ENTITY_ATTRIBUTE_COMBO, attributeCombo.getComboName()));
+        }
     }
 
     @Override

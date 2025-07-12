@@ -75,6 +75,10 @@ public class LoreServiceImpl implements LoreService {
                 .filter(s -> !s.trim().isEmpty())
                 .ifPresent(lore::setName);
 
-        loreRepository.save(lore);
+        try {
+            loreRepository.save(lore);
+        } catch (DataIntegrityViolationException e) {
+            throw new ConflictException(ErrorMsgConstants.conflict(ENTITY_LORE, lore.getName()));
+        }
     }
 }

@@ -138,7 +138,11 @@ public class AncestryServiceImpl implements AncestryService {
                 .filter(s -> !s.trim().isEmpty())
                 .ifPresent(ancestry::setDescription);
 
-        ancestryRepository.save(ancestry);
+        try {
+            ancestryRepository.save(ancestry);
+        } catch (DataIntegrityViolationException e) {
+            throw new ConflictException(ErrorMsgConstants.conflict(ENTITY_ANCESTRY, ancestry.getName()));
+        }
     }
 
     @Override

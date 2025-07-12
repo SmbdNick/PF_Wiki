@@ -57,7 +57,11 @@ public class TraitServiceImpl implements TraitService {
                 .filter(s -> !s.trim().isEmpty())
                 .ifPresent(trait::setDescription);
 
-        traitRepository.save(trait);
+        try {
+            traitRepository.save(trait);
+        } catch (DataIntegrityViolationException e) {
+            throw new ConflictException(ErrorMsgConstants.conflict(ENTITY_TRAIT, trait.getName()));
+        }
     }
 
     @Override

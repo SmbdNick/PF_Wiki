@@ -105,7 +105,11 @@ public class PlayerClassServiceImpl implements PlayerClassService {
         Optional.ofNullable(request.getAttributeComboId())
                 .ifPresent(playerClass::setAttributeComboId);
 
-        playerClassRepository.save(playerClass);
+        try {
+            playerClassRepository.save(playerClass);
+        } catch (DataIntegrityViolationException e) {
+            throw new ConflictException(ErrorMsgConstants.conflict(ENTITY_PLAYER_CLASS, playerClass.getName()));
+        }
     }
 
     @Override

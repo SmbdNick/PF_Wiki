@@ -105,7 +105,11 @@ public class BackgroundServiceImpl implements BackgroundService {
         Optional.ofNullable(request.getSkillId())
                 .ifPresent(background::setSkillId);
 
-        backgroundRepository.save(background);
+        try {
+            backgroundRepository.save(background);
+        } catch (DataIntegrityViolationException e) {
+            throw new ConflictException(ErrorMsgConstants.conflict(ENTITY_BACKGROUND, background.getName()));
+        }
     }
 
     private String getSkillFeatName(UUID skillFeatId) {
