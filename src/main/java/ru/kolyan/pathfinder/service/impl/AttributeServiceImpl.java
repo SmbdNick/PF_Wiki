@@ -12,6 +12,7 @@ import ru.kolyan.pathfinder.controller.attribute.response.GetAllAttributeRespons
 import ru.kolyan.pathfinder.controller.attribute.response.GetByIdAttributeResponse;
 import ru.kolyan.pathfinder.exception.ConflictException;
 import ru.kolyan.pathfinder.exception.NotFoundException;
+import ru.kolyan.pathfinder.mapper.AttributeMapper;
 import ru.kolyan.pathfinder.model.Attribute;
 import ru.kolyan.pathfinder.model.AttributeCombo;
 import ru.kolyan.pathfinder.repository.AttributeComboRepository;
@@ -28,14 +29,14 @@ import java.util.UUID;
 public class AttributeServiceImpl implements AttributeService {
     private final AttributeRepository attributeRepository;
     private final AttributeComboRepository attributeComboRepository;
+    private final AttributeMapper attributeMapper;
 
     private static final String ENTITY_ATTRIBUTE = "Атрибут";
     private static final String ENTITY_ATTRIBUTE_COMBO = "Комбо Атрибутов";
 
     @Override
     public void create(CreateAttributeRequest request) {
-        Attribute attribute = new Attribute();
-        attribute.setName(request.getName());
+        Attribute attribute = attributeMapper.fromCreateDto(request);
 
         try {
             attributeRepository.save(attribute);
@@ -49,20 +50,14 @@ public class AttributeServiceImpl implements AttributeService {
         Attribute attribute = attributeRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(ErrorMsgConstants.notFound(ENTITY_ATTRIBUTE, id)));
 
-        return GetByIdAttributeResponse.builder()
-                .id(attribute.getId())
-                .name(attribute.getName())
-                .build();
+        return attributeMapper.toGetByIdDto(attribute);
     }
 
     @Override
     public GetAllAttributeResponse getAll() {
         List<Attribute> attributeList = attributeRepository.findAll();
         List<GetAllAttributeResponse.Attribute> content = attributeList.stream()
-                .map(attribute -> GetAllAttributeResponse.Attribute.builder()
-                        .id(attribute.getId())
-                        .name(attribute.getName())
-                        .build())
+                .map(attributeMapper::toGetAllContentDto)
                 .toList();
 
         return GetAllAttributeResponse.builder()
@@ -86,18 +81,22 @@ public class AttributeServiceImpl implements AttributeService {
         Optional.ofNullable(request.getName())
                 .filter(s -> !s.trim().isEmpty())
                 .ifPresent(attribute::setName);
-
-        attributeRepository.save(attribute);
+        try {
+            attributeRepository.save(attribute);
+        } catch (DataIntegrityViolationException e) {
+            throw new ConflictException(ErrorMsgConstants.conflict(ENTITY_ATTRIBUTE, attribute.getName()));
+        }
     }
 
     @Override
     public void createCombo(CreateAttributeComboRequest request) {
-        AttributeCombo attributeCombo = new AttributeCombo();
-        attributeCombo.setAttributeId1(request.getAttributeId1());
-        attributeCombo.setAttributeId2(request.getAttributeId2());
-        attributeCombo.setComboName(request.getComboName());
+        AttributeCombo attributeCombo = attributeMapper.fromCreateComboDto(request);
 
-        attributeComboRepository.save(attributeCombo);
+        try {
+            attributeComboRepository.save(attributeCombo);
+        } catch (DataIntegrityViolationException e) {
+            throw new ConflictException(ErrorMsgConstants.conflict(ENTITY_ATTRIBUTE_COMBO, attributeCombo.getComboName()));
+        }
     }
 
     @Override
@@ -115,7 +114,11 @@ public class AttributeServiceImpl implements AttributeService {
                 .filter(s -> !s.trim().isEmpty())
                 .ifPresent(attributeCombo::setComboName);
 
-        attributeComboRepository.save(attributeCombo);
+        try {
+            attributeComboRepository.save(attributeCombo);
+        } catch (DataIntegrityViolationException e) {
+            throw new ConflictException(ErrorMsgConstants.conflict(ENTITY_ATTRIBUTE_COMBO, attributeCombo.getComboName()));
+        }
     }
 
     @Override
@@ -131,11 +134,7 @@ public class AttributeServiceImpl implements AttributeService {
     public GetAllAttributeComboResponse getAllCombo() {
         List<AttributeCombo> attributeComboList = attributeComboRepository.findAll();
         List<GetAllAttributeComboResponse.AttributeCombo> content = attributeComboList.stream()
-                .map(attributeCombo -> GetAllAttributeComboResponse.AttributeCombo.builder()
-                        .attributeId1(attributeCombo.getAttributeId1())
-                        .attributeId2(attributeCombo.getAttributeId2())
-                        .comboName(attributeCombo.getComboName())
-                        .build())
+                .map(attributeMapper::toGetAllContentComboDto)
                 .toList();
 
         return GetAllAttributeComboResponse.builder()

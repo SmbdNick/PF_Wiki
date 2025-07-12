@@ -10,6 +10,7 @@ import ru.kolyan.pathfinder.controller.background.response.GetAllBackgroundRespo
 import ru.kolyan.pathfinder.controller.background.response.GetByIdBackgroundResponse;
 import ru.kolyan.pathfinder.exception.ConflictException;
 import ru.kolyan.pathfinder.exception.NotFoundException;
+import ru.kolyan.pathfinder.mapper.BackgroundMapper;
 import ru.kolyan.pathfinder.model.Background;
 import ru.kolyan.pathfinder.repository.AttributeComboRepository;
 import ru.kolyan.pathfinder.repository.BackgroundRepository;
@@ -32,18 +33,13 @@ public class BackgroundServiceImpl implements BackgroundService {
     private final SkillRepository skillRepository;
     private final LoreRepository loreRepository;
     private final AttributeComboRepository attributeComboRepository;
+    private final BackgroundMapper backgroundMapper;
 
     private static final String ENTITY_BACKGROUND = "Предыстория";
 
     @Override
     public void create(CreateBackgroundRequest request) {
-        Background background = new Background();
-        background.setName(request.getName());
-        background.setDescription(request.getDescription());
-        background.setAttributeComboId(request.getAttributeComboId());
-        background.setLoreId(request.getLoreId());
-        background.setSkillFeatId(request.getSkillFeatId());
-        background.setSkillId(request.getSkillId());
+        Background background = backgroundMapper.fromCreateDto(request);
 
         try {
             backgroundRepository.save(background);
@@ -58,19 +54,8 @@ public class BackgroundServiceImpl implements BackgroundService {
         Background background = backgroundRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(ErrorMsgConstants.notFound(ENTITY_BACKGROUND, id)));
 
-        return GetByIdBackgroundResponse.builder()
-                .id(background.getId())
-                .name(background.getName())
-                .description(background.getDescription())
-                .skillFeatId(background.getSkillFeatId())
-                .skillFeatName(getSkillFeatName(background.getSkillFeatId()))
-                .skillId(background.getSkillId())
-                .skillName(getSkillName(background.getSkillId()))
-                .loreId(background.getLoreId())
-                .loreName(getLoreName(background.getLoreId()))
-                .attributeComboId(background.getAttributeComboId())
-                .attributeComboName(getComboName(background.getAttributeComboId()))
-                .build();
+        return backgroundMapper.toGetByIdDto(background, getSkillFeatName(background.getSkillFeatId()),
+                getSkillName(background.getSkillId()), getLoreName(background.getLoreId()), getComboName(background.getAttributeComboId()));
     }
 
     @Override
@@ -78,19 +63,8 @@ public class BackgroundServiceImpl implements BackgroundService {
     public GetAllBackgroundResponse getAll() {
         List<Background> backgroundList = backgroundRepository.findAll();
         List<GetAllBackgroundResponse.Background> content = backgroundList.stream()
-                .map(background -> GetAllBackgroundResponse.Background.builder()
-                        .id(background.getId())
-                        .name(background.getName())
-                        .description(background.getDescription())
-                        .skillFeatId(background.getSkillFeatId())
-                        .skillFeatName(getSkillFeatName(background.getSkillFeatId()))
-                        .skillId(background.getSkillId())
-                        .skillName(getSkillName(background.getSkillId()))
-                        .loreId(background.getLoreId())
-                        .loreName(getLoreName(background.getLoreId()))
-                        .attributeComboId(background.getAttributeComboId())
-                        .attributeComboName(getComboName(background.getAttributeComboId()))
-                        .build())
+                .map(background -> backgroundMapper.getAllContentDto(background, getSkillFeatName(background.getSkillFeatId()),
+                        getSkillName(background.getSkillId()), getLoreName(background.getLoreId()), getComboName(background.getAttributeComboId())))
                 .toList();
 
         return GetAllBackgroundResponse.builder()
@@ -131,7 +105,11 @@ public class BackgroundServiceImpl implements BackgroundService {
         Optional.ofNullable(request.getSkillId())
                 .ifPresent(background::setSkillId);
 
-        backgroundRepository.save(background);
+        try {
+            backgroundRepository.save(background);
+        } catch (DataIntegrityViolationException e) {
+            throw new ConflictException(ErrorMsgConstants.conflict(ENTITY_BACKGROUND, background.getName()));
+        }
     }
 
     private String getSkillFeatName(UUID skillFeatId) {

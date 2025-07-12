@@ -11,6 +11,7 @@ import ru.kolyan.pathfinder.controller.playerclass.response.GetAllPlayerClassRes
 import ru.kolyan.pathfinder.controller.playerclass.response.GetByIdPlayerClassResponse;
 import ru.kolyan.pathfinder.exception.ConflictException;
 import ru.kolyan.pathfinder.exception.NotFoundException;
+import ru.kolyan.pathfinder.mapper.PlayerClassMapper;
 import ru.kolyan.pathfinder.model.ClassMastery;
 import ru.kolyan.pathfinder.model.PlayerClass;
 import ru.kolyan.pathfinder.repository.AttributeComboRepository;
@@ -33,17 +34,14 @@ public class PlayerClassServiceImpl implements PlayerClassService {
     private final AttributeComboRepository attributeComboRepository;
     private final ClassMasteryRepository classMasteryRepository;
     private final MasteryTierRepository masteryTierRepository;
+    private final PlayerClassMapper playerClassMapper;
 
     private static final String ENTITY_PLAYER_CLASS = "Класс";
     private static final String ENTITY_CLASS_MASTERY = "Мастерство Класса";
 
     @Override
     public void create(CreatePlayerClassRequest request) {
-        PlayerClass playerClass = new PlayerClass();
-        playerClass.setName(request.getName());
-        playerClass.setDescription(request.getDescription());
-        playerClass.setHpPerLvl(request.getHpPerLvl());
-        playerClass.setAttributeComboId(request.getAttributeComboId());
+        PlayerClass playerClass = playerClassMapper.fromCreateDto(request);
 
         try {
             playerClassRepository.save(playerClass);
@@ -59,23 +57,11 @@ public class PlayerClassServiceImpl implements PlayerClassService {
                 .orElseThrow(() -> new NotFoundException(ErrorMsgConstants.notFound(ENTITY_PLAYER_CLASS, id)));
 
         List<ClassMastery> classMasteryList = classMasteryRepository.findAllByPlayerClassId(id);
-
         List<ClassMasteryDto> classMasteries = classMasteryList.stream()
-                .map(classMastery -> ClassMasteryDto.builder()
-                        .characteristic(classMastery.getCharacteristic())
-                        .masteryTierName(getMasteryTierName(classMastery.getMasteryTierId()))
-                        .build())
+                .map(classMastery -> playerClassMapper.fromEntity(classMastery, getMasteryTierName(classMastery.getMasteryTierId())))
                 .toList();
 
-        return GetByIdPlayerClassResponse.builder()
-                .id(playerClass.getId())
-                .name(playerClass.getName())
-                .hpPerLvl(playerClass.getHpPerLvl())
-                .description(playerClass.getDescription())
-                .attributeComboId(playerClass.getAttributeComboId())
-                .attributeComboName(getComboName(playerClass.getAttributeComboId()))
-                .classMasteries(classMasteries)
-                .build();
+        return playerClassMapper.toGetByIdDto(playerClass, getComboName(playerClass.getAttributeComboId()), classMasteries);
     }
 
     @Override
@@ -84,14 +70,7 @@ public class PlayerClassServiceImpl implements PlayerClassService {
         List<PlayerClass> playerClassList = playerClassRepository.findAll();
 
         List<GetAllPlayerClassResponse.PlayerClass> content = playerClassList.stream()
-                .map(playerClass -> GetAllPlayerClassResponse.PlayerClass.builder()
-                        .id(playerClass.getId())
-                        .name(playerClass.getName())
-                        .hpPerLvl(playerClass.getHpPerLvl())
-                        .description(playerClass.getDescription())
-                        .attributeComboId(playerClass.getAttributeComboId())
-                        .attributeComboName(getComboName(playerClass.getAttributeComboId()))
-                        .build())
+                .map(playerClass -> playerClassMapper.toGetAllContentDto(playerClass, getComboName(playerClass.getAttributeComboId())))
                 .toList();
 
         return GetAllPlayerClassResponse.builder()
@@ -126,7 +105,11 @@ public class PlayerClassServiceImpl implements PlayerClassService {
         Optional.ofNullable(request.getAttributeComboId())
                 .ifPresent(playerClass::setAttributeComboId);
 
-        playerClassRepository.save(playerClass);
+        try {
+            playerClassRepository.save(playerClass);
+        } catch (DataIntegrityViolationException e) {
+            throw new ConflictException(ErrorMsgConstants.conflict(ENTITY_PLAYER_CLASS, playerClass.getName()));
+        }
     }
 
     @Override
@@ -135,12 +118,7 @@ public class PlayerClassServiceImpl implements PlayerClassService {
         PlayerClass playerClass = playerClassRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(ErrorMsgConstants.notFound(ENTITY_PLAYER_CLASS, id)));
 
-        ClassMastery classMastery = new ClassMastery();
-        classMastery.setPlayerClassId(playerClass.getId());
-        classMastery.setMasteryTierId(request.getMasteryTierId());
-        classMastery.setCharacteristic(request.getCharacteristic());
-
-        classMasteryRepository.save(classMastery);
+        classMasteryRepository.save(playerClassMapper.fromAddDtoClassMastery(request, playerClass));
     }
 
     @Override
