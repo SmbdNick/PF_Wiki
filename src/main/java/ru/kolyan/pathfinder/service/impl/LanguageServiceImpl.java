@@ -13,6 +13,7 @@ import ru.kolyan.pathfinder.controller.language.response.GetAllLanguageResponse;
 import ru.kolyan.pathfinder.controller.language.response.GetByIdLanguageResponse;
 import ru.kolyan.pathfinder.exception.ConflictException;
 import ru.kolyan.pathfinder.exception.NotFoundException;
+import ru.kolyan.pathfinder.mapper.LanguageMapper;
 import ru.kolyan.pathfinder.model.Language;
 import ru.kolyan.pathfinder.repository.LanguageRepository;
 import ru.kolyan.pathfinder.service.api.LanguageService;
@@ -29,13 +30,13 @@ import java.util.UUID;
 public class LanguageServiceImpl implements LanguageService {
     private final LanguageRepository languageRepository;
     private final EntityManager entityManager;
+    private final LanguageMapper languageMapper;
 
     private static final String ENTITY_LANGUAGE = "Язык";
 
     @Override
     public void create(CreateLanguageRequest request) {
-        Language language = new Language();
-        language.setName(request.getName());
+        Language language = languageMapper.fromCreateDto(request);
 
         try {
             languageRepository.save(language);
@@ -49,20 +50,14 @@ public class LanguageServiceImpl implements LanguageService {
         Language language = languageRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(ErrorMsgConstants.notFound(ENTITY_LANGUAGE, id)));
 
-        return GetByIdLanguageResponse.builder()
-                .id(language.getId())
-                .name(language.getName())
-                .build();
+        return languageMapper.toGetByIdDto(language);
     }
 
     @Override
     public GetAllLanguageResponse getAll() {
         List<Language> languageList = languageRepository.findAll();
         List<GetAllLanguageResponse.Language> content = languageList.stream()
-                .map(language -> GetAllLanguageResponse.Language.builder()
-                        .id(language.getId())
-                        .name(language.getName())
-                        .build())
+                .map(languageMapper::toGetAllContentDto)
                 .toList();
 
         return GetAllLanguageResponse.builder()
@@ -87,7 +82,11 @@ public class LanguageServiceImpl implements LanguageService {
                 .filter(s -> !s.trim().isEmpty())
                 .ifPresent(language::setName);
 
-        languageRepository.save(language);
+        try {
+            languageRepository.save(language);
+        } catch (DataIntegrityViolationException e) {
+            throw new ConflictException(ErrorMsgConstants.conflict(ENTITY_LANGUAGE, language.getName()));
+        }
     }
 
     @Override
@@ -101,11 +100,7 @@ public class LanguageServiceImpl implements LanguageService {
         List<Language> languages = entityManager.createQuery(query).getResultList();
 
         return languages.stream()
-                .map(language -> GetLanguageDto.builder()
-                        .id(language.getId())
-                        .name(language.getName())
-                        .build()
-                )
+                .map(languageMapper::toGetServiceDto)
                 .toList();
     }
 }

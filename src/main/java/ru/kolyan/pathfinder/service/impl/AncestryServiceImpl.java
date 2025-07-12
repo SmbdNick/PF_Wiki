@@ -15,6 +15,7 @@ import ru.kolyan.pathfinder.controller.ancestry.response.GetByIdAncestryResponse
 import ru.kolyan.pathfinder.exception.BadRequestException;
 import ru.kolyan.pathfinder.exception.ConflictException;
 import ru.kolyan.pathfinder.exception.NotFoundException;
+import ru.kolyan.pathfinder.mapper.AncestryMapper;
 import ru.kolyan.pathfinder.model.Ancestry;
 import ru.kolyan.pathfinder.model.AncestryLanguage;
 import ru.kolyan.pathfinder.model.AncestryTrait;
@@ -31,7 +32,6 @@ import ru.kolyan.pathfinder.service.dto.GetTraitDto;
 import ru.kolyan.pathfinder.service.dto.GetTraitsFilterDto;
 import ru.kolyan.pathfinder.util.ErrorMsgConstants;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -46,6 +46,7 @@ public class AncestryServiceImpl implements AncestryService {
     private final TraitService traitService;
     private final AncestryLanguageRepository ancestryLanguageRepository;
     private final LanguageService languageService;
+    private final AncestryMapper ancestryMapper;
 
     private static final String ENTITY_ANCESTRY = "Родословная";
     private static final String ENTITY_TRAIT = "Трэйт";
@@ -53,13 +54,7 @@ public class AncestryServiceImpl implements AncestryService {
 
     @Override
     public void create(CreateAncestryRequest request) {
-        Ancestry ancestry = new Ancestry();
-        ancestry.setAttributeComboId(request.getAttributeComboId());
-        ancestry.setDescription(request.getDescription());
-        ancestry.setHp(request.getHp());
-        ancestry.setName(request.getName());
-        ancestry.setSize(request.getSize());
-        ancestry.setSpeed(request.getSpeed());
+        Ancestry ancestry = ancestryMapper.fromCreateDto(request);
 
         try {
             ancestryRepository.save(ancestry);
@@ -92,18 +87,7 @@ public class AncestryServiceImpl implements AncestryService {
                 .map(GetLanguageDto::getName)
                 .toList();
 
-        return GetByIdAncestryResponse.builder()
-                .id(ancestry.getId())
-                .name(ancestry.getName())
-                .hp(ancestry.getHp())
-                .size(ancestry.getSize())
-                .speed(ancestry.getSpeed())
-                .attributeComboId(ancestry.getAttributeComboId())
-                .comboName(getComboName(ancestry.getAttributeComboId()))
-                .description(ancestry.getDescription())
-                .traitList(traits)
-                .languageList(languages)
-                .build();
+        return ancestryMapper.toGetByIdDto(ancestry, getComboName(ancestry.getAttributeComboId()), traits, languages);
     }
 
     @Override
@@ -112,16 +96,7 @@ public class AncestryServiceImpl implements AncestryService {
         List<Ancestry> ancestryList = ancestryRepository.findAll();
 
         List<GetAllAncestryResponse.Ancestry> content = ancestryList.stream()
-                .map(ancestry -> GetAllAncestryResponse.Ancestry.builder()
-                        .id(ancestry.getId())
-                        .name(ancestry.getName())
-                        .hp(ancestry.getHp())
-                        .size(ancestry.getSize())
-                        .speed(ancestry.getSpeed())
-                        .attributeComboId(ancestry.getAttributeComboId())
-                        .comboName(getComboName(ancestry.getAttributeComboId()))
-                        .description(ancestry.getDescription())
-                        .build())
+                .map(ancestry -> ancestryMapper.toGetAllContentDto(ancestry, getComboName(ancestry.getAttributeComboId())))
                 .toList();
 
         return GetAllAncestryResponse.builder()
@@ -163,7 +138,11 @@ public class AncestryServiceImpl implements AncestryService {
                 .filter(s -> !s.trim().isEmpty())
                 .ifPresent(ancestry::setDescription);
 
-        ancestryRepository.save(ancestry);
+        try {
+            ancestryRepository.save(ancestry);
+        } catch (DataIntegrityViolationException e) {
+            throw new ConflictException(ErrorMsgConstants.conflict(ENTITY_ANCESTRY, ancestry.getName()));
+        }
     }
 
     @Override
@@ -172,15 +151,7 @@ public class AncestryServiceImpl implements AncestryService {
         Ancestry ancestry = ancestryRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(ErrorMsgConstants.notFound(ENTITY_ANCESTRY, id)));
 
-        List<AncestryTrait> ancestryTraitListToSave = new ArrayList<>();
-
-        request.getTraitIdList().forEach(traitId -> {
-            AncestryTrait ancestryTrait = new AncestryTrait();
-            ancestryTrait.setTraitId(traitId);
-            ancestryTrait.setAncestryId(ancestry.getId());
-
-            ancestryTraitListToSave.add(ancestryTrait);
-        });
+        List<AncestryTrait> ancestryTraitListToSave = ancestryMapper.fromAddTraitsDto(request, ancestry);
 
         ancestryTraitRepository.saveAll(ancestryTraitListToSave);
     }
@@ -202,15 +173,8 @@ public class AncestryServiceImpl implements AncestryService {
     public void addLanguages(UUID id, AddAncestryLanguageRequest request) {
         Ancestry ancestry = ancestryRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(ErrorMsgConstants.notFound(ENTITY_ANCESTRY, id)));
-        List<AncestryLanguage> ancestryLanguageListToSave = new ArrayList<>();
 
-        request.getLanguageIdList().forEach(languageId -> {
-            AncestryLanguage ancestryLanguage = new AncestryLanguage();
-            ancestryLanguage.setLanguageId(languageId);
-            ancestryLanguage.setAncestryId(ancestry.getId());
-
-            ancestryLanguageListToSave.add(ancestryLanguage);
-        });
+        List<AncestryLanguage> ancestryLanguageListToSave = ancestryMapper.fromAddLanguagesDto(request, ancestry);
 
         ancestryLanguageRepository.saveAll(ancestryLanguageListToSave);
     }
