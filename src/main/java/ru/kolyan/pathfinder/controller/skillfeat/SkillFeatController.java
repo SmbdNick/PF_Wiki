@@ -2,6 +2,7 @@ package ru.kolyan.pathfinder.controller.skillfeat;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -57,7 +58,7 @@ public class SkillFeatController {
     }
 
     @DeleteMapping("/{id}/traits")
-    public void deleteTraits(@PathVariable UUID id, @Valid DeleteSkillFeatTraitsRequest request) {
+    public void deleteTraits(@PathVariable UUID id, @ParameterObject @Valid DeleteSkillFeatTraitsRequest request) {
         skillFeatService.deleteTraits(id, request);
     }
 }
