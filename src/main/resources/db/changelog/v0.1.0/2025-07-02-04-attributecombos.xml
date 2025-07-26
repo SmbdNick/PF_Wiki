@@ -1,0 +1,34 @@
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+    <changeSet id="2025-07-02-04-01" author="SmbdNick">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="attribute_combos"/>
+            </not>
+        </preConditions>
+        <createTable tableName="attribute_combos" remarks="Комбо Атрибутов">
+            <column name="id" type="uuid" valueComputed="gen_random_uuid" remarks="Первичный ключ">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="combo_name" type="varchar(255)" remarks="Имя">
+                <constraints unique="true" nullable="false"/>
+            </column>
+            <column name="attribute_id1" type="uuid" remarks="Айди атрибута 1"/>
+            <column name="attribute_id2" type="uuid" remarks="Айди атрибута 2"/>
+        </createTable>
+        <addForeignKeyConstraint baseTableName="attribute_combos" baseColumnNames="attribute_id1"
+                                 constraintName="fk_combo_attributes1"
+                                 referencedTableName="attributes"
+                                 referencedColumnNames="id"
+                                 onDelete="CASCADE"
+                                 onUpdate="CASCADE"/>
+        <addForeignKeyConstraint baseTableName="attribute_combos" baseColumnNames="attribute_id2"
+                                 constraintName="fl_combo_attributes2"
+                                 referencedTableName="attributes"
+                                 referencedColumnNames="id"
+                                 onDelete="CASCADE"
+                                 onUpdate="CASCADE"/>
+    </changeSet>
+</databaseChangeLog>

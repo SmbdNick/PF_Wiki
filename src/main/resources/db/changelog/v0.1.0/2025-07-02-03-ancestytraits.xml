@@ -1,0 +1,35 @@
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+    <changeSet id="2025-07-02-03-01" author="SmbdNick">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="ancestry_traits"/>
+            </not>
+        </preConditions>
+        <createTable tableName="ancestry_traits" remarks="Трэйты Родословных">
+            <column name="id" type="uuid" valueComputed="gen_random_uuid" remarks="Первичный ключ">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="trait_id" type="uuid" remarks="Айди трэйта">
+                <constraints nullable="false"/>
+            </column>
+            <column name="ancestry_id" type="uuid" remarks="Айди родословной">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addForeignKeyConstraint baseTableName="ancestry_traits" baseColumnNames="trait_id"
+                                 constraintName="fk_anctraits_traits"
+                                 referencedTableName="traits"
+                                 referencedColumnNames="id"
+                                 onDelete="CASCADE"
+                                 onUpdate="CASCADE"/>
+        <addForeignKeyConstraint baseTableName="ancestry_traits" baseColumnNames="ancestry_id"
+                                 constraintName="fk_anctraits_ancesties"
+                                 referencedTableName="ancestries"
+                                 referencedColumnNames="id"
+                                 onDelete="CASCADE"
+                                 onUpdate="CASCADE"/>
+    </changeSet>
+</databaseChangeLog>

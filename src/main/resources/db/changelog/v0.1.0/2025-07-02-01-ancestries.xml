@@ -1,0 +1,33 @@
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+    <changeSet id="2025-07-02-01" author="SmbdNick">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="ancestries"/>
+            </not>
+        </preConditions>
+        <createTable tableName="ancestries" remarks="Родословные">
+            <column name="id" type="uuid" valueComputed="gen_random_uuid" remarks="Первичный ключ">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="varchar(255)" remarks="Имя">
+                <constraints unique="true" nullable="false"/>
+            </column>
+            <column name="hp" type="integer" remarks="ОЗ"/>
+            <column name="size" type="varchar(255)" remarks="Размер"/>
+            <column name="speed" type="integer" remarks="Скорость"/>
+            <column name="description" type="text" remarks="Описание"/>
+            <column name="attribute_combo_id" type="uuid" remarks="Айди комбо атрибутов">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addForeignKeyConstraint baseTableName="ancestries" baseColumnNames="attribute_combo_id"
+                                 constraintName="fk_ancestries_combos"
+                                 referencedTableName="attribute_combos"
+                                 referencedColumnNames="id"
+                                 onDelete="NO ACTION"
+                                 onUpdate="CASCADE"/>
+    </changeSet>
+</databaseChangeLog>

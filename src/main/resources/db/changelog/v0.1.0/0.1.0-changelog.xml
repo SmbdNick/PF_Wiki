@@ -1,0 +1,21 @@
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+    <include file="db/changelog/v0.1.0/2025-06-26-01-skillfeats.xml"/>
+    <include file="/db/changelog/v0.1.0/2025-06-29-01-skills.xml"/>
+    <include file="db/changelog/v0.1.0/2025-06-30-01-attributes.xml"/>
+    <include file="db/changelog/v0.1.0/2025-07-01-01-traits.xml"/>
+    <include file="db/changelog/v0.1.0/2025-07-02-01-ancestries.xml"/>
+    <include file="db/changelog/v0.1.0/2025-07-02-02-ancestrylanguages.xml"/>
+    <include file="db/changelog/v0.1.0/2025-07-02-03-ancestytraits.xml"/>
+    <include file="db/changelog/v0.1.0/2025-07-02-04-attributecombos.xml"/>
+    <include file="db/changelog/v0.1.0/2025-07-02-05-languages.xml"/>
+    <include file="db/changelog/v0.1.0/2025-07-02-06-skillfeattraits.xml"/>
+    <include file="db/changelog/v0.1.0/2025-07-10-01-backgrounds.xml"/>
+    <include file="db/changelog/v0.1.0/2025-07-10-02-lores.xml"/>
+    <include file="db/changelog/v0.1.0/2025-07-10-03-masterytiers.xml"/>
+    <include file="db/changelog/v0.1.0/2025-07-10-04-playerclasses.xml"/>
+    <include file="db/changelog/v0.1.0/2025-07-11-01-classmasteries.xml"/>
+
+</databaseChangeLog>

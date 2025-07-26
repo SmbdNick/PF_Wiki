@@ -1,0 +1,36 @@
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+    <changeSet id="2025-07-11-01-01" author="SmbdNick">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="class_masteries"/>
+            </not>
+        </preConditions>
+        <createTable tableName="class_masteries" remarks="Мастерство классов">
+            <column name="id" type="uuid" valueComputed="gen_random_uuid" remarks="Первичный ключ">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="characteristic" type="varchar(255)" remarks="Название характеристики"/>
+            <column name="player_class_id" type="uuid" remarks="Айди класса">
+                <constraints nullable="false"/>
+            </column>
+            <column name="mastery_tier_id" type="uuid" remarks="Айди тира мастерства">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addForeignKeyConstraint baseTableName="class_masteries" baseColumnNames="player_class_id"
+                                 constraintName="fk_classmasteries_class"
+                                 referencedTableName="player_classes"
+                                 referencedColumnNames="id"
+                                 onDelete="CASCADE"
+                                 onUpdate="CASCADE"/>
+        <addForeignKeyConstraint baseTableName="class_masteries" baseColumnNames="mastery_tier_id"
+                                 constraintName="fk_classmasteries_masteries"
+                                 referencedTableName="mastery_tiers"
+                                 referencedColumnNames="id"
+                                 onDelete="CASCADE"
+                                 onUpdate="CASCADE"/>
+    </changeSet>
+</databaseChangeLog>
