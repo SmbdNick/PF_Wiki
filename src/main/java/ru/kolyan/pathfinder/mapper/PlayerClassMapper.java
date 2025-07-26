@@ -1,6 +1,8 @@
 package ru.kolyan.pathfinder.mapper;
 
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.Named;
 import ru.kolyan.pathfinder.controller.playerclass.request.AddClassMasteryRequest;
 import ru.kolyan.pathfinder.controller.playerclass.request.CreatePlayerClassRequest;
 import ru.kolyan.pathfinder.controller.playerclass.response.GetAllPlayerClassResponse;
@@ -11,61 +13,22 @@ import ru.kolyan.pathfinder.service.dto.ClassMasteryDto;
 
 import java.util.List;
 
-@Component
-public class PlayerClassMapper {
-    public PlayerClass fromCreateDto(CreatePlayerClassRequest request) {
-        PlayerClass playerClass = new PlayerClass();
-        playerClass.setName(request.getName());
-        playerClass.setDescription(request.getDescription());
-        playerClass.setHpPerLvl(request.getHpPerLvl());
-        playerClass.setAttributeComboId(request.getAttributeComboId());
+@Mapper(componentModel = "spring")
+public interface PlayerClassMapper {
+    @Mapping(target = "id", ignore = true)
+    PlayerClass fromCreateDto(CreatePlayerClassRequest request);
 
-        return playerClass;
-    }
+    @Mapping(source = "classMasteries", target = "classMasteries", qualifiedByName = "toGetByIdClassMasteryDto")
+    GetByIdPlayerClassResponse toGetByIdDto(PlayerClass playerClass, String attributeComboName, List<ClassMasteryDto> classMasteries);
 
-    public GetByIdPlayerClassResponse toGetByIdDto(PlayerClass playerClass, String attributeComboName, List<ClassMasteryDto> classMasteries) {
-        return GetByIdPlayerClassResponse.builder()
-                .id(playerClass.getId())
-                .name(playerClass.getName())
-                .hpPerLvl(playerClass.getHpPerLvl())
-                .description(playerClass.getDescription())
-                .attributeComboId(playerClass.getAttributeComboId())
-                .attributeComboName(attributeComboName)
-                .classMasteries(classMasteries.stream().map(this::toGetByIdClassMasteryDto).toList())
-                .build();
-    }
+    @Named("toGetByIdClassMasteryDto")
+    GetByIdPlayerClassResponse.ClassMastery toGetByIdClassMasteryDto(ClassMasteryDto dto);
 
-    public GetByIdPlayerClassResponse.ClassMastery toGetByIdClassMasteryDto(ClassMasteryDto dto) {
-        return GetByIdPlayerClassResponse.ClassMastery.builder()
-                .characteristic(dto.getCharacteristic())
-                .masteryTierName(dto.getMasteryTierName())
-                .build();
-    }
+    ClassMasteryDto fromEntity(ClassMastery classMastery, String masteryTierName);
 
-    public ClassMasteryDto fromEntity(ClassMastery classMastery, String masteryTierName) {
-        return ClassMasteryDto.builder()
-                .characteristic(classMastery.getCharacteristic())
-                .masteryTierName(masteryTierName)
-                .build();
-    }
+    GetAllPlayerClassResponse.PlayerClass toGetAllContentDto(PlayerClass playerClass, String attributeComboName);
 
-    public GetAllPlayerClassResponse.PlayerClass toGetAllContentDto(PlayerClass playerClass, String attributeComboName) {
-        return GetAllPlayerClassResponse.PlayerClass.builder()
-                .id(playerClass.getId())
-                .name(playerClass.getName())
-                .hpPerLvl(playerClass.getHpPerLvl())
-                .description(playerClass.getDescription())
-                .attributeComboId(playerClass.getAttributeComboId())
-                .attributeComboName(attributeComboName)
-                .build();
-    }
-
-    public ClassMastery fromAddDtoClassMastery(AddClassMasteryRequest request, PlayerClass playerClass) {
-        ClassMastery classMastery = new ClassMastery();
-        classMastery.setPlayerClassId(playerClass.getId());
-        classMastery.setMasteryTierId(request.getMasteryTierId());
-        classMastery.setCharacteristic(request.getCharacteristic());
-
-        return classMastery;
-    }
+    @Mapping(source = "playerClass.id", target = "playerClassId")
+    @Mapping(target = "id", ignore = true)
+    ClassMastery fromAddDtoClassMastery(AddClassMasteryRequest request, PlayerClass playerClass);
 }

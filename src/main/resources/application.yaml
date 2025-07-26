@@ -6,9 +6,10 @@ api:
     public: ${PREFIX_PUBLIC:/api/pf-wiki}
 
 spring:
-  jpa:
-    hibernate:
-      ddl-auto: update
+  liquibase:
+    change-log: classpath:db/changelog/master.xml
+    enabled: true
+
   datasource:
     url: ${DATASOURCE_URL:jdbc:postgresql://localhost:5432/postgres?user=postgres&password=password}
     driver-class-name: org.postgresql.Driver
@@ -18,3 +19,8 @@ spring:
       idle-timeout: 30000    # Время ожидания в миллисекундах перед закрытием неиспользуемого соединения
       connection-timeout: 30000  # Время ожидания в миллисекундах при получении соединения из пула
       max-lifetime: 1800000   # Максимальное время жизни соединения в миллисекундах
+
+
+      # Other optional properties:
+      # spring.liquibase.default-schema=your_schema_name
+      # spring.liquibase.drop-first=false

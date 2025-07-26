@@ -1,0 +1,31 @@
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+    <changeSet id="2025-07-10-04-01" author="SmbdNick">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="player_classes"/>
+            </not>
+        </preConditions>
+        <createTable tableName="player_classes" remarks="Классы">
+            <column name="id" type="uuid" valueComputed="gen_random_uuid" remarks="Первичный ключ">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="varchar(255)" remarks="Имя">
+                <constraints unique="true" nullable="false"/>
+            </column>
+            <column name="hp_per_lvl" type="integer" remarks="ОЗ за уровень"/>
+            <column name="description" type="text" remarks="Описание"/>
+            <column name="attribute_combo_id" type="uuid" remarks="Айди комбо атрибутов">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addForeignKeyConstraint baseTableName="player_classes" baseColumnNames="attribute_combo_id"
+                                 constraintName="fk_classes_combos"
+                                 referencedTableName="attribute_combos"
+                                 referencedColumnNames="id"
+                                 onDelete="CASCADE"
+                                 onUpdate="CASCADE"/>
+    </changeSet>
+</databaseChangeLog>

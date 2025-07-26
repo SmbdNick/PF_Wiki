@@ -1,0 +1,57 @@
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+    <changeSet id="2025-06-29-01-01" author="SmbdNick">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="backgrounds"/>
+            </not>
+        </preConditions>
+        <createTable tableName="backgrounds" remarks="Предыстории">
+            <column name="id" type="uuid" valueComputed="gen_random_uuid" remarks="Первичный ключ">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="varchar(255)" remarks="Имя">
+                <constraints unique="true" nullable="false"/>
+            </column>
+            <column name="description" type="text" remarks="Описание"/>
+            <column name="skill_feat_id" type="uuid" remarks="Айди скилл фита">
+                <constraints nullable="false"/>
+            </column>
+            <column name="skill_id" type="uuid" remarks="Айди скила">
+                <constraints nullable="false"/>
+            </column>
+            <column name="lore_id" type="uuid" remarks="Айди Знания">
+                <constraints nullable="false"/>
+            </column>
+            <column name="attribute_combo_id" type="uuid" remarks="Айди комбо атрибутов">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addForeignKeyConstraint baseTableName="backgrounds" baseColumnNames="skill_feat_id"
+                                 constraintName="fk_backgrounds_skill_feats"
+                                 referencedTableName="skill_feats"
+                                 referencedColumnNames="id"
+                                 onDelete="NO ACTION"
+                                 onUpdate="CASCADE"/>
+        <addForeignKeyConstraint baseTableName="backgrounds" baseColumnNames="skill_id"
+                                 constraintName="fk_backgrounds_skills"
+                                 referencedTableName="skills"
+                                 referencedColumnNames="id"
+                                 onDelete="NO ACTION"
+                                 onUpdate="CASCADE"/>
+        <addForeignKeyConstraint baseTableName="backgrounds" baseColumnNames="lore_id"
+                                 constraintName="fk_backgrounds_lores"
+                                 referencedTableName="lores"
+                                 referencedColumnNames="id"
+                                 onDelete="CASCADE"
+                                 onUpdate="CASCADE"/>
+        <addForeignKeyConstraint baseTableName="backgrounds" baseColumnNames="attribute_combo_id"
+                                 constraintName="fk_backgrounds_combos"
+                                 referencedTableName="attribute_combos"
+                                 referencedColumnNames="id"
+                                 onDelete="CASCADE"
+                                 onUpdate="CASCADE"/>
+    </changeSet>
+</databaseChangeLog>
